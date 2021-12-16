@@ -1,0 +1,40 @@
+
+<body class="simple-page">
+	<div id="back-to-home">
+		<a href="/" class="btn btn-outline btn-default"><i class="fa fa-home animated zoomIn"></i></a>
+	</div>
+	<div class="simple-page-wrap">
+		<div class="simple-page-logo animated swing">
+			<a href="/">
+				<img src="https://scrollmantra.com/wp-content/uploads/2019/10/SM-Logo-1-300x81.png"/>
+			</a>
+		</div><!-- logo -->
+		<div class="simple-page-form animated flipInY" id="login-form">
+			<%- include('partials/messages') %>
+		
+	<h4 class="form-title m-b-xl text-center">Add User</h4>
+	<form action="/login" method="post">
+		<div class="form-group">
+			<input   name="name" type="text" class="form-control" placeholder="Name"   value="<%= typeof name != 'undefined' ? name : '' %>">
+		</div>
+
+		<div class="form-group">
+			<input  name="email" type="email" class="form-control" placeholder="Email"   value="<%= typeof email != 'undefined' ? email : '' %>">
+		</div>
+		<div class="form-group">
+			<input  name="password" type="password" class="form-control" placeholder="Password"   value="<%= typeof password != 'undefined' ? password : '' %>">
+		</div>
+		<div class="form-group">
+		<select class="form-control">
+			<option value="admin">Admin</option>
+			<option value="viewonly">Viewonly</option>
+			<option value="editor">Editor</option>
+		</select>
+		</div>
+		<input type="submit" class="btn btn-primary" value="ADD USER">
+	</form>
+</div><!-- #login-form -->
+
+
+
+	</div><!-- .simple-page-wrap -->

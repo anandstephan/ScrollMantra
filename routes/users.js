@@ -38,6 +38,120 @@ router.get("/", (req, res) => {
   res.render("login", { layout: "loginlayout" });
 });
 
+//Login Handler
+router.post("/login", (req, res, next) => {
+  const { email, password } = req.body;
+  let errors = [];
+
+  // //Check required fields
+  if (!email) {
+    errors.push({ msg: "Please Fill the Email Field" });
+  }
+  if (!password) {
+    errors.push({ msg: "Please Fill the Password Field" });
+  }
+  if (errors.length > 0) {
+    res.render("login", { errors, email, password, layout: "loginlayout" });
+  } else {
+    if (email == "admin@gmail.com" && password == "1234567890") {
+      console.log("TEST");
+      // req.session.passport.user = email;
+      res.redirect("/admin");
+    } else {
+      passport.authenticate("local", {
+        successRedirect: "/dashboard",
+        failureRedirect: "/",
+        failureFlash: true,
+      })(req, res, next);
+    }
+  }
+});
+
+router.get("/adduser", (req, res) => {
+  res.render("adduser", { layout: "loginlayout" });
+});
+
+//AddUser Handler
+router.post("/adduser", (req, res) => {
+  const { name, email, password, userType } = req.body;
+  let errors = [];
+
+  //Check required fields
+  if (!name) {
+    errors.push({ msg: "Please Fill the Name Field" });
+  }
+  if (!email) {
+    errors.push({ msg: "Please Fill the Email Field" });
+  }
+  if (!password) {
+    errors.push({ msg: "Please Fill the Password Field" });
+  }
+
+  //Check pass length
+  if (password.length < 6) {
+    errors.push({ msg: "Password must contain more than 6 character" });
+  }
+
+  if (errors.length > 0) {
+    res.render("adduser", {
+      errors,
+      name,
+      email,
+      password,
+      layout: "loginlayout",
+    });
+  } else {
+    const newUser = new User({
+      name,
+      email,
+      password,
+      userType,
+    });
+    //Hash Password
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(newUser.password, salt, (err, hash) => {
+        if (err) throw err;
+        //Set Password to hashed
+        newUser.password = hash;
+        newUser
+          .save()
+          .then((user) => {
+            req.flash("success_msg", "You are now register and can log in");
+            sendMail(email, password);
+            res.redirect("/admin");
+          })
+          .catch((err) => console.log(err));
+      });
+    });
+  }
+});
+
+//ForgotPassword Handler
+router.get("/forgotpassword", (req, res) => {
+  res.render("forgotpassword", { layout: "loginlayout" });
+});
+
+router.post("/forgotpassword", async (req, res) => {
+  const { email, password } = req.body;
+  sendMail(email, password);
+  const salt = await bcrypt.genSalt(10);
+  let hashedPassword = await bcrypt.hash(req.body.password, salt);
+  const newUserCreditinal = { email, password: hashedPassword };
+  try {
+    let user = await User.findOneAndUpdate(
+      { email: email },
+      newUserCreditinal,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    res.redirect("/showalluser");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 router.get("/test2/:param", (req, res) => {
   // console.log(req.params.param)
   let bucketname = req.params.param;
@@ -79,16 +193,6 @@ router.get("/test2/:param", (req, res) => {
 
 router.get("/test", (req, res) => {
   res.render("pdfviewer");
-});
-
-//Login Page
-// router.get("/login", (req, res) => {
-//   res.render("login", { layout: "loginlayout" });
-// });
-
-//Register Page
-router.get("/register", (req, res) => {
-  res.render("register", { layout: "loginlayout" });
 });
 
 //upload file get
@@ -142,54 +246,6 @@ router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
   res.redirect("/dashboard");
 });
 
-//Register Handler
-router.post("/register", (req, res) => {
-  const { name, email, password, userType } = req.body;
-  let errors = [];
-
-  //Check required fields
-  if (!name) {
-    errors.push({ msg: "Please Fill the Name Field" });
-  }
-  if (!email) {
-    errors.push({ msg: "Please Fill the Email Field" });
-  }
-  if (!password) {
-    errors.push({ msg: "Please Fill the Password Field" });
-  }
-
-  //Check pass length
-  if (password.length < 6) {
-    errors.push({ msg: "Password must contain more than 6 character" });
-  }
-
-  if (errors.length > 0) {
-    res.render("register", { errors, name, email, password });
-  } else {
-    const newUser = new User({
-      name,
-      email,
-      password,
-    });
-    //Hash Password
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(newUser.password, salt, (err, hash) => {
-        if (err) throw err;
-        //Set Password to hashed
-        newUser.password = hash;
-        newUser
-          .save()
-          .then((user) => {
-            req.flash("success_msg", "You are now register and can log in");
-            sendMail(email, password);
-            res.redirect("/admin");
-          })
-          .catch((err) => console.log(err));
-      });
-    });
-  }
-});
-
 const checkAuthenicated = function (req, res, next) {
   if (req.isAuthenticated()) {
     res.set(
@@ -208,40 +264,6 @@ router.get("/dashboard", checkAuthenicated, (req, res) => {
   res.render("dashboard");
 });
 
-//Login Handler
-router.post("/login", (req, res, next) => {
-  const { email, password } = req.body;
-  // console.log(req.body);
-  let errors = [];
-
-  // //Check required fields
-  if (!email) {
-    errors.push({ msg: "Please Fill the Email Field" });
-  }
-  if (!password) {
-    errors.push({ msg: "Please Fill the Password Field" });
-  }
-  //Check password length
-  // if (password.length < 6) {
-  //   errors.push({ msg: "Password length must be more than 6 character" });
-  // }
-  if (errors.length > 0) {
-    res.render("login", { errors, email, password, layout: "loginlayout" });
-  } else {
-    if (email == "admin@gmail.com") {
-      console.log("TEST");
-      // req.session.passport.user = email;
-      res.redirect("/admin");
-    } else {
-      passport.authenticate("local", {
-        successRedirect: "/dashboard",
-        failureRedirect: "/",
-        failureFlash: true,
-      })(req, res, next);
-    }
-  }
-});
-
 //Logout Handler
 router.get("/logout", (req, res) => {
   req.logout();
@@ -251,10 +273,6 @@ router.get("/logout", (req, res) => {
 
 router.get("/admin", (req, res) => {
   res.render("admindashboard", { layout: "loginlayout" });
-});
-
-router.get("/adduser", (req, res) => {
-  res.render("register", { layout: "loginlayout" });
 });
 
 router.get("/showalluser", async (req, res) => {
@@ -309,9 +327,6 @@ router.get("/showallfiles", async (req, res) => {
   }
 });
 
-router.get("/edit", (req, res) => {
-  res.render("forgotpassword");
-});
 router.get("/history", async (req, res) => {
   try {
     const info = await Info.find().lean();
@@ -362,41 +377,26 @@ router.get("/history", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
-  try {
-    const info = await Info.find({ userid: req.params.id }).lean();
-    let result = [];
-    info[0].dataUrl.map((data) => {
-      console.log(data);
-      let parts = data.substring(0, data.lastIndexOf("/"));
-      result.push({
-        url: data,
-        name: data.split("/").pop(),
-        extname: data.split(".").pop(),
-        bucketname: data.split(".")[0].split("//")[1],
-        foldername: parts.split("/")[3],
-      });
-    });
+// router.get("/:id", async (req, res) => {
+//   try {
+//     const info = await Info.find({ userid: req.params.id }).lean();
+//     let result = [];
+//     info[0].dataUrl.map((data) => {
+//       console.log(data);
+//       let parts = data.substring(0, data.lastIndexOf("/"));
+//       result.push({
+//         url: data,
+//         name: data.split("/").pop(),
+//         extname: data.split(".").pop(),
+//         bucketname: data.split(".")[0].split("//")[1],
+//         foldername: parts.split("/")[3],
+//       });
+//     });
 
-    res.render("showAllFiles", { users: result });
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-router.post("/forgotpassword", async (req, res) => {
-  const { email, password } = req.body;
-  sendMail(email, password);
-
-  try {
-    let user = await User.findOneAndUpdate({ email: email }, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    res.redirect("/showalluser");
-  } catch (error) {
-    console.log(error);
-  }
-});
+//     res.render("showAllFiles", { users: result });
+//   } catch (err) {
+//     console.error(err);
+//   }
+// });
 
 module.exports = router;

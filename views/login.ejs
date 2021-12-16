@@ -1,13 +1,12 @@
 
 <body class="simple-page">
 	<div id="back-to-home">
-		<a href="index.html" class="btn btn-outline btn-default"><i class="fa fa-home animated zoomIn"></i></a>
+		<a href="/" class="btn btn-outline btn-default"><i class="fa fa-home animated zoomIn"></i></a>
 	</div>
 	<div class="simple-page-wrap">
 		<div class="simple-page-logo animated swing">
-			<a href="index.html">
-				<span><i class="fa fa-gg"></i></span>
-				<span>ScrollMantra</span>
+			<a href="/">
+				<img src="https://scrollmantra.com/wp-content/uploads/2019/10/SM-Logo-1-300x81.png"/>
 			</a>
 		</div><!-- logo -->
 		<div class="simple-page-form animated flipInY" id="login-form">
@@ -16,18 +15,18 @@
 	<h4 class="form-title m-b-xl text-center">Sign In</h4>
 	<form action="/login" method="post">
 		<div class="form-group">
-			<input id="sign-in-email" name="email" type="email" class="form-control" placeholder="Email">
+			<input id="sign-in-email" name="email" type="email" class="form-control" placeholder="Email"   value="<%= typeof name != 'undefined' ? email : '' %>">
 		</div>
 
 		<div class="form-group">
-			<input id="sign-in-password" name="password" type="password" class="form-control" placeholder="Password">
+			<input id="sign-in-password" name="password" type="password" class="form-control" placeholder="Password"   value="<%= typeof name != 'undefined' ? password : '' %>">
 		</div>
 		<input type="submit" class="btn btn-primary" value="SIGN IN">
 	</form>
 </div><!-- #login-form -->
 
 <div class="simple-page-footer">
-	<p><a href="password-forget.html">FORGOT YOUR PASSWORD ?</a></p>
+	<p><a href="/forgotpassword">FORGOT YOUR PASSWORD ?</a></p>
 	
 </div><!-- .simple-page-footer -->
 
