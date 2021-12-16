@@ -1,0 +1,42 @@
+
+					<div class="inner_content_w3_agile_info two_in">
+						<h2 class="w3_inner_tittle">Details of a <%=name%></h2>
+									  <!-- tables -->
+									  
+									  <div class="agile-tables">
+										  <div class="w3l-table-info agile_info_shadow">
+											  <table id="table">
+											  <thead>
+												<tr>
+												  <th>File Name</th>
+												  <th>Folder Name</th>
+												  <th>BucketName</th>
+												  <th>File Type</th>
+												  <th>Download Link</th>
+												</tr>
+											  </thead>
+											  <tbody>
+						  <% users.forEach(user => { %>
+							<tr class="table-active">
+							<td scope="row"><%=user.name%></td>          
+							<td scope="row"><%=user.foldername%></td>
+							<td scope="row"><%=user.bucketname%></td>
+							<td scope="row"><%=user.extname%></td>
+														<td scope="row"><a href="<%= user.url %>" class="btn bn-primary" target="_blank">Download</td>
+							  </tr>
+							<% });%>
+  
+											  </tbody>
+											</table>
+									  
+  
+								  </div>
+  
+						  </div>
+							  <!-- //tables -->
+					  
+					  </div>
+					  <!-- //inner_content_w3_agile_info-->
+				  </div>
+		  <!-- //inner_content-->
+  

@@ -1,0 +1,162 @@
+
+					<div class="inner_content_w3_agile_info two_in">
+					  <h2 class="w3_inner_tittle">Upload File</h2>
+
+							<!--/forms-->
+													<div class="forms-main_agileits">
+														
+															<div class="graph-form agile_info_shadow">
+															 <h3 class="w3_inner_tittle two">Upload File </h3>
+																	<div class="form-body">
+																		<form method="post" enctype="multipart/form-data" action="/uploaddata" >
+                                      <div class="form-group">
+                                         <label for="exampleInputEmail1">Chose Bucket</label> 
+                                         <select class="form-control" id="exampleSelect1" onchange="selectChange(this)" name="bucket" style="height:56px"> 
+    
+                                          <% buckets.forEach(user => { %>
+                                            <option class="form-control" value=<%= user.Name %> selected="selected"><%= user.Name %></option>
+                                        <% });%>
+                                          </select> 
+                                        </div> 
+                                        <div class="form-group"> 
+                                          <label for="exampleInputPassword1">Folder Name</label> 
+                                          <select class="form-control" id="folder" onchange="selectChange(this)" name="folder" style="height:56px"> 
+                                          </select>
+                                      
+                                         </div> 
+                                         <div class="droparea">
+                                          <label for="formFile" class="form-label mt-4">Drag and Drop Your Files Here</label>
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="formFile" class="form-label mt-4">Select Your Files</label>
+                                          <input class="form-control" type="file" id="formFile" name="img" multiple>
+                                        </div> 
+                                        <input class="btn btn-primary btn-block btn-lg" type="submit"  >    
+                                          </form> 
+																	</div>
+
+															</div>
+																<!--/forms-inner-->
+													  				
+																	<!--//forms-inner-->
+																</div> 
+														<!--//forms-->											   
+					
+							<!-- /social_media-->
+						  
+						<!-- //social_media-->
+				    </div>
+					<!-- //inner_content_w3_agile_info-->
+				</div>
+		<!-- //inner_content-->
+	</div>
+<!-- banner -->
+
+<!-- js -->
+
+          <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+		  <script src="js/modernizr.custom.js"></script>
+		
+		   <script src="js/classie.js"></script>
+		  <script src="js/gnmenu.js"></script>
+		  <script>
+			new gnMenu( document.getElementById( 'gn-menu' ) );
+		 </script>
+
+<!-- //js -->
+<script src="js/screenfull.js"></script>
+		<script>
+		$(function () {
+			$('#supported').text('Supported/allowed: ' + !!screenfull.enabled);
+
+			if (!screenfull.enabled) {
+				return false;
+			}
+
+			
+
+			$('#toggle').click(function () {
+				screenfull.toggle($('#container')[0]);
+			});	
+		});
+		</script>
+<script src="js/jquery.nicescroll.js"></script>
+<script src="js/scripts.js"></script>
+
+<script type="text/javascript" src="js/bootstrap-3.1.1.min.js"></script>
+<script>
+    
+  function selectChange(e){
+    console.log(e.value)
+
+    var xmlhttp = new XMLHttpRequest();
+    // document.getElementById("folder").innerHTML = ''
+xmlhttp.onreadystatechange = function() {
+
+  if (xmlhttp.readyState == XMLHttpRequest.DONE) {   // XMLHttpRequest.DONE == 4
+    // console.log("test2",xmlhttp.status);
+     if (xmlhttp.status == 200) {
+      //  console.log("test",xmlhttp.responseText);
+
+       let result = JSON.parse(xmlhttp.responseText)
+      console.log(result)
+       let result1 = [];
+       for(let i=0;i<result.length;i++)
+       result1.push(result[i]);
+      let select = document.getElementById("folder")
+       result1.forEach(name =>{
+         
+        let opt = document.createElement('option');
+        opt.value = name;
+        opt.innerHTML = name;
+        folder.appendChild(opt);
+         
+       })
+        //  document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+     }
+     else if (xmlhttp.status == 400) {
+        alert('There was an error 400');
+     }
+     else {
+         alert('something else other than 200 was returned');
+     }
+  }
+};
+
+xmlhttp.open("GET", `test2/${e.value}`, true);
+xmlhttp.send();
+
+  }
+
+  const droparea = document.querySelector(".droparea");
+
+droparea.addEventListener("dragover", (e) => {
+e.preventDefault();
+droparea.classList.add("hover");
+});
+
+droparea.addEventListener("dragleave", () => {
+droparea.classList.remove("hover");
+});
+
+droparea.addEventListener("drop", (e) => {
+e.preventDefault();
+
+const image = e.dataTransfer.files[0];
+// console.log("yest",image.type);
+const type = image.type;
+
+if (type == "image/png" ||type == "image/jpg" ||type == "image/jpeg" || type == "image/gif" || type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || type == "application/pdf") {
+  return upload(image);
+} else {
+  droparea.setAttribute("class", "droparea invalid");
+  droparea.innerText = "Invalid File Format!";
+  return false;
+}
+});
+
+const upload = (image) => {
+droparea.setAttribute("class", "droparea valid");
+droparea.innerText = "Added " + image.name;
+};
+</script>

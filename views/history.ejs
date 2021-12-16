@@ -1,0 +1,60 @@
+
+					<div class="inner_content_w3_agile_info two_in">
+						<h2 class="w3_inner_tittle">History</h2>
+									  <!-- tables -->
+									  <input class="form-control" id="myInput" type="text" placeholder="Search..">									  
+									  <div class="agile-tables">
+										  <div class="w3l-table-info agile_info_shadow">
+											  <table id="table">
+											  <thead>
+												<tr>
+												  <th> Name</th>
+                                                  <th>Email</th>
+												  <th>Folder Name</th>
+												  <th>BucketName</th>
+                                                  <th>File Name</th>
+												  <th>File Type</th>
+												  <th>Download Link</th>
+                                                  <th>Time</th>
+												</tr>
+											  </thead>
+											  <tbody id="myTable">
+						  <% users.forEach(user => { %>
+							<tr class="table-active">
+							<td scope="row"><%=user.name%></td> 
+                            <td scope="row"><%=user.email%></td>         
+							<td scope="row"><%=user.foldername%></td>
+							<td scope="row"><%=user.bucketname%></td>
+                            <td scope="row"><%=user.fname%></td>							
+                            <td scope="row"><%=user.extname%></td>
+							<td scope="row"><a href="<%= user.url %>" class="btn bn-primary" target="_blank">Download</td>
+							<td scope="row">22:00</td>
+                            </tr>
+							<% });%>
+  
+											  </tbody>
+											</table>
+									  
+  
+								  </div>
+  
+						  </div>
+							  <!-- //tables -->
+					  
+					  </div>
+					  <!-- //inner_content_w3_agile_info-->
+				  </div>
+		  <!-- //inner_content-->
+		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		  <script>
+			$(document).ready(function(){
+			  $("#myInput").on("keyup", function() {
+				var value = $(this).val().toLowerCase();
+				$("#myTable tr").filter(function() {
+				  $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+				});
+			  });
+			});
+			</script>
+			
+  
