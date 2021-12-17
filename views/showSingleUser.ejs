@@ -19,7 +19,8 @@
 			  <div class="col-md-12">
 				  <div class="widget">
 					  <header class="widget-header">
-						  <h4 class="widget-title">All Files</h4>
+						  <h4 class="widget-title">All Files </h4>
+                          <h1 id="userid" style="visibility:hidden"></h1>
 					  </header>
 					  <hr class="widget-separator"/>
 					  <div class="widget-body">
@@ -27,15 +28,23 @@
 							  <table class="table no-cellborder">
 								  <thead>
 									  <tr>
-										 <th>Name</th>
+										 <th>File Name</th>
 										  <th>Type</th>
 										  <th>Bucket Name</th>
 										  <th>Folder Name</th>
-										  <th>File Name</th>
 										  <th>Created At</th>
 										</tr>
 								  </thead>
 								  <tbody id="userlist">
+                                    <% results.forEach(result => { %>
+                                        <tr>
+                                        <td><%=result.name%></td>          
+                                        <td><%=result.extname%></td>
+                                        <td><%=result.bucketname%></td>
+                                        <td><%=result.foldername%></td>
+                                        <td><%=result.created_at%></td>
+                                          </tr>
+                                        <% });%>
 								  </tbody>
 							  </table>
 						  </div>
@@ -62,27 +71,3 @@
   
   
   
-<script>
-document.addEventListener("DOMContentLoaded",()=>{
-
-	fetch("http://localhost:8000/adminshowallfiles")
-		.then(data => data.json())
-		.then(result => {
-		const list = document.querySelector("#userlist");
-		result.map(res =>{
-			const row = document.createElement('tr');
-        row.innerHTML = `
-                    <td>${res.username}</td>
-                    <td>${res.extname}</td>
-                    <td>${res.bucketname}</td>
-					<td>${res.foldername}</td>
-					<td>${res.filename}</td>
-                    <td>${res.createdAt}</td>
-                    `;
-        list.appendChild(row);
-		})
-
-		})
-})
-
-</script>  

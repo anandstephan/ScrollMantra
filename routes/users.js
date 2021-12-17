@@ -36,7 +36,7 @@ function sendMail(to, msg) {
 }
 
 router.get("/", (req, res) => {
-  res.render("login", { layout: "loginlayout" });
+  res.render("login", { layout: "singlelayout" });
 });
 
 //Login Handler
@@ -52,7 +52,7 @@ router.post("/login", (req, res, next) => {
     errors.push({ msg: "Please Fill the Password Field" });
   }
   if (errors.length > 0) {
-    res.render("login", { errors, email, password, layout: "loginlayout" });
+    res.render("login", { errors, email, password, layout: "singlelayout" });
   } else {
     if (email == "admin@gmail.com" && password == "1234567890") {
       console.log("TEST");
@@ -68,68 +68,9 @@ router.post("/login", (req, res, next) => {
   }
 });
 
-router.get("/adduser", (req, res) => {
-  res.render("adduser", { layout: "loginlayout" });
-});
-
-//AddUser Handler
-router.post("/adduser", (req, res) => {
-  const { name, email, password, userType } = req.body;
-  let errors = [];
-
-  //Check required fields
-  if (!name) {
-    errors.push({ msg: "Please Fill the Name Field" });
-  }
-  if (!email) {
-    errors.push({ msg: "Please Fill the Email Field" });
-  }
-  if (!password) {
-    errors.push({ msg: "Please Fill the Password Field" });
-  }
-
-  //Check pass length
-  if (password.length < 6) {
-    errors.push({ msg: "Password must contain more than 6 character" });
-  }
-
-  if (errors.length > 0) {
-    res.render("adduser", {
-      errors,
-      name,
-      email,
-      password,
-      layout: "loginlayout",
-    });
-  } else {
-    const newUser = new User({
-      name,
-      email,
-      password,
-      userType,
-    });
-    //Hash Password
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(newUser.password, salt, (err, hash) => {
-        if (err) throw err;
-        //Set Password to hashed
-        newUser.password = hash;
-        newUser
-          .save()
-          .then((user) => {
-            req.flash("success_msg", "You are now register and can log in");
-            sendMail(email, password);
-            res.redirect("/admin");
-          })
-          .catch((err) => console.log(err));
-      });
-    });
-  }
-});
-
 //ForgotPassword Handler
 router.get("/forgotpassword", (req, res) => {
-  res.render("forgotpassword", { layout: "loginlayout" });
+  res.render("forgotpassword", { layout: "singlelayout" });
 });
 
 router.post("/forgotpassword", async (req, res) => {
@@ -196,7 +137,7 @@ router.get("/upload", (req, res) => {
     if (err) {
       console.log("Error", err);
     } else {
-      res.render("upload", { buckets: data.Buckets });
+      res.render("upload", { buckets: data.Buckets, layout: "layout" });
     }
   });
 });
@@ -247,7 +188,7 @@ const checkAuthenicated = function (req, res, next) {
 router.get("/dashboard", checkAuthenicated, (req, res) => {
   // console.log(req.session.passport.user);
   // res.sendFile(require("path").resolve(__dirname, ".." + "/dashboard.html"));
-  res.render("dashboard");
+  res.render("dashboard", { layout: "layout" });
 });
 
 //Logout Handler
@@ -262,25 +203,51 @@ router.get("/admin", (req, res) => {
 });
 
 router.get("/showalluser", async (req, res) => {
+  res.render("showalluser", { layout: "loginlayout" });
+});
+
+router.get("/showalluserstatus", async (req, res) => {
   try {
-    const users = await User.find().lean();
-    // console.log(users);
+    const users = await User.find({
+      timestamp: { $lte: new Date(), $gte: new Date(Date() - 7) },
+    }).lean();
     let info = [];
     users.map(
       (user) =>
         user.email != "admin@gmail.com" &&
         info.push({ id: user._id, name: user.name, email: user.email })
     );
-    // console.log(info);
-    res.render("showalluser", { users: info });
-    // res.render('dashboard',{
-    //     name:req.user.firstName+" "+req.user.lastName,
-    //     stories
-    // })
-    // res.render("showuser", { users });
+    res.status(200).json(info);
   } catch (err) {
     console.error(err);
   }
+});
+
+router.get("/adminshowallfiles", async (req, res) => {
+  try {
+    const infos = await Info.find().populate("userid", "name").lean();
+    let result = [];
+    infos.map((info) => {
+      info.dataUrl.map((inf) =>
+        result.push({
+          url: inf.url,
+          filename: inf.url.split("/").pop(),
+          extname: inf.url.split(".").pop(),
+          bucketname: inf.url.split(".")[0].split("//")[1],
+          foldername: inf.url.split("/")[3],
+          username: info.userid.name,
+          createdAt: inf.created_at,
+        })
+      );
+    });
+    res.status(200).json(result);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+router.get("/adminallfiles", async (req, res) => {
+  res.render("showAllFiles", { layout: "loginlayout" });
 });
 
 router.get("/showallfiles", async (req, res) => {
@@ -298,11 +265,6 @@ router.get("/showallfiles", async (req, res) => {
         foldername: data.split("/")[3],
       });
     });
-    // console.log(req.session.passport.user.name);
-    // res.render('dashboard',{
-    //     name:req.user.firstName+" "+req.user.lastName,
-    //     stories
-    // })
     res.render("showAllFiles", {
       layout: "layout",
       users: result,
@@ -320,7 +282,11 @@ router.get("/history", async (req, res) => {
     let result = [];
     info.map((data) => {
       // console.log(data);
-      result.push({ uid: data.userid, fname: data.dataUrl.map((url) => url) });
+      result.push({
+        uid: data.userid,
+        fname: data.dataUrl.map((url1) => url1.url),
+        created_at: data.dataUrl.map((url) => url.created_at),
+      });
     });
     // console.log(result);
     let alldetails = await Promise.all(
@@ -356,33 +322,131 @@ router.get("/history", async (req, res) => {
         })
       )
     );
-    console.log(newresult);
-    res.render("history", { layout: "layout", users: newresult });
+    // console.log(newresult);
+    res.render("history", { layout: "loginlayout", results: newresult });
   } catch (err) {
     console.error(err);
   }
 });
 
-// router.get("/:id", async (req, res) => {
-//   try {
-//     const info = await Info.find({ userid: req.params.id }).lean();
-//     let result = [];
-//     info[0].dataUrl.map((data) => {
-//       console.log(data);
-//       let parts = data.substring(0, data.lastIndexOf("/"));
-//       result.push({
-//         url: data,
-//         name: data.split("/").pop(),
-//         extname: data.split(".").pop(),
-//         bucketname: data.split(".")[0].split("//")[1],
-//         foldername: parts.split("/")[3],
-//       });
-//     });
+router.get("/adduser", (req, res) => {
+  res.render("adduser", { layout: "singlelayout" });
+});
 
-//     res.render("showAllFiles", { users: result });
-//   } catch (err) {
-//     console.error(err);
-//   }
-// });
+//AddUser Handler
+router.post("/adduser", (req, res) => {
+  const { name, email, password, userType } = req.body;
+  let errors = [];
+
+  //Check required fields
+  if (!name) {
+    errors.push({ msg: "Please Fill the Name Field" });
+  }
+  if (!email) {
+    errors.push({ msg: "Please Fill the Email Field" });
+  }
+  if (!password) {
+    errors.push({ msg: "Please Fill the Password Field" });
+  }
+
+  //Check pass length
+  if (password.length < 6) {
+    errors.push({ msg: "Password must contain more than 6 character" });
+  }
+
+  if (errors.length > 0) {
+    res.render("adduser", {
+      errors,
+      name,
+      email,
+      password,
+      layout: "singlelayout",
+    });
+  } else {
+    const newUser = new User({
+      name,
+      email,
+      password,
+      userType,
+    });
+    //Hash Password
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(newUser.password, salt, (err, hash) => {
+        if (err) throw err;
+        //Set Password to hashed
+        newUser.password = hash;
+        newUser
+          .save()
+          .then((user) => {
+            req.flash("success_msg", "You are now register and can log in");
+            sendMail(email, password);
+            res.redirect("/admin");
+          })
+          .catch((err) => console.log(err));
+      });
+    });
+  }
+});
+
+router.get("/uploadlast7days", async (req, res) => {
+  try {
+    const info = await Info.find({
+      timestamp: { $lte: new Date(), $gte: new Date(Date() - 7) },
+    }).lean();
+    res.status(200).json(info.length);
+  } catch (err) {
+    console.error(err);
+  }
+});
+router.get("/uploaduserlast7days", async (req, res) => {
+  try {
+    const user = await User.find({
+      timestamp: { $lte: new Date(), $gte: new Date(Date() - 7) },
+    }).lean();
+    res.status(200).json(user.length);
+  } catch (err) {
+    console.error(err);
+  }
+});
+router.get("/uploadimageslast7days/:param", async (req, res) => {
+  try {
+    const images = await Info.find({
+      timestamp: { $lte: new Date(), $gte: new Date(Date() - 7) },
+    }).lean();
+    let UrlArry = images.map((img) => img.dataUrl);
+    let urlArry1 = UrlArry.map((url) => url);
+    let urlArry2 = [];
+    urlArry1.map((url) => url.map((url1) => urlArry2.push(url1.url)));
+    let count = 0;
+    urlArry2.map((url) => (url.search(req.params.param) != -1 ? count++ : ""));
+    res.status(200).json(count);
+    // res.status(200).json(image);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.get("/user/:id", async (req, res) => {
+  try {
+    const infos = await Info.find({ userid: req.params.id }).lean();
+    let result = [];
+    // console.log(infos);
+    infos.map((info) =>
+      info.dataUrl.map((inf) =>
+        result.push({
+          url: inf.url,
+          name: inf.url.split("/").pop(),
+          extname: inf.url.split(".").pop(),
+          bucketname: inf.url.split(".")[0].split("//")[1],
+          foldername: inf.url.split("/")[3],
+          created_at: inf.created_at,
+        })
+      )
+    );
+    res.render("showSingleUser", { results: result, layout: "loginlayout" });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 module.exports = router;

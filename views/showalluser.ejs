@@ -1,40 +1,84 @@
 
-					<div class="inner_content_w3_agile_info two_in">
-					  <h2 class="w3_inner_tittle">Show All User</h2>
-									<!-- tables -->
-									
-									<div class="agile-tables">
-										<div class="w3l-table-info agile_info_shadow">
-										 <h3 class="w3_inner_tittle two">Show All User</h3>
-											<table id="table">
-											<thead>
-											  <tr>
-												<th>Name</th>
-                        						<th>Email</th>
-												<th>More Details</th>
-												<th>Edit</th>
-											  </tr>
-											</thead>
-											<tbody>
-                        <% users.forEach(user => { %>
-                          <tr class="table-active">
-                          <td scope="row"><%=user.name%></td>          
-                          <td scope="row"><%=user.email%></td>
-                          <td scope="row"><a href="/<%= user.id %>" class="btn btn-primary" target="_blank">More Details</td>
-						  <td><a href="/edit" class="btn btn-primary">Edit</a></td>
-                            </tr>
-                          <% });%>
+<!-- APP MAIN ==========-->
+<main id="app-main" class="app-main">
+	<div class="wrap">
+	  <section class="app-content">
+		  <div class="row">
+			  <div class="col-md-12 col-sm-12">
+				  <div class="widget p-md clearfix">
+					  <div class="pull-left">
+						  <h3 class="widget-title">Welcome to ScrollMantra</h3>
+					  </div>
+  
+				  </div><!-- .widget -->
+			  </div>
+  
+		  </div><!-- .row -->
+  
+		  <div class="row">
+			  <div class="col-md-12">
+				  <div class="widget">
+					  <header class="widget-header">
+						  <h4 class="widget-title">All User</h4>
+					  </header>
+					  <hr class="widget-separator"/>
+					  <div class="widget-body">
+						  <div class="table-responsive">							
+							  <table class="table no-cellborder">
+								  <thead>
+									  <tr>
+										 <th>Name</th>
+										  <th>Email</th>
+										  <th>More Details</th>
+										</tr>
+								  </thead>
+								  <tbody id="userlist">
+								  </tbody>
+							  </table>
+						  </div>
+					  </div>
+				  </div><!-- .widget -->
+			  </div><!-- END column -->
+  
+		  
+		  </div><!-- .row -->
+  
+	  </section><!-- #dash-content -->
+  </div><!-- .wrap -->
+	<!-- APP FOOTER -->
+	<div class="wrap p-t-0">
+	  <footer class="app-footer">
+		<div class="clearfix">
+		  <div class="copyright pull-left">&copy; 2014-2021 | All Rights Reserved | Scroll Mantra </div>
+		</div>
+	  </footer>
+	</div>
+	<!-- /#app-footer -->
+  </main>
+  <!--========== END app main -->
+  
+  
+  
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
 
-											</tbody>
-										  </table>
-									
+	fetch("http://localhost:8000/showalluserstatus")
+		.then(data => data.json())
+		.then(result => {
+			console.log(result)
+		const list = document.querySelector("#userlist");
+		result.map(res =>{
+			const row = document.createElement('tr');
+        row.innerHTML = `
+                    <td>${res.name}</td>
+                    <td>${res.email}</td>
+					<td><a href="/user/${res.id}" class="btn btn-info">More Detail</a></td>
+                
+                    `;
+        list.appendChild(row);
+		})
 
-								</div>
+		})
+})
 
-						</div>
-							<!-- //tables -->
-					
-				    </div>
-					<!-- //inner_content_w3_agile_info-->
-				</div>
-		<!-- //inner_content-->
+</script>  

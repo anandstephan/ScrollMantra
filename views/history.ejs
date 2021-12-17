@@ -1,60 +1,78 @@
 
-					<div class="inner_content_w3_agile_info two_in">
-						<h2 class="w3_inner_tittle">History</h2>
-									  <!-- tables -->
-									  <input class="form-control" id="myInput" type="text" placeholder="Search..">									  
-									  <div class="agile-tables">
-										  <div class="w3l-table-info agile_info_shadow">
-											  <table id="table">
-											  <thead>
-												<tr>
-												  <th> Name</th>
-                                                  <th>Email</th>
-												  <th>Folder Name</th>
-												  <th>BucketName</th>
-                                                  <th>File Name</th>
-												  <th>File Type</th>
-												  <th>Download Link</th>
-                                                  <th>Time</th>
-												</tr>
-											  </thead>
-											  <tbody id="myTable">
-						  <% users.forEach(user => { %>
-							<tr class="table-active">
-							<td scope="row"><%=user.name%></td> 
-                            <td scope="row"><%=user.email%></td>         
-							<td scope="row"><%=user.foldername%></td>
-							<td scope="row"><%=user.bucketname%></td>
-                            <td scope="row"><%=user.fname%></td>							
-                            <td scope="row"><%=user.extname%></td>
-							<td scope="row"><a href="<%= user.url %>" class="btn bn-primary" target="_blank">Download</td>
-							<td scope="row">22:00</td>
-                            </tr>
-							<% });%>
-  
-											  </tbody>
-											</table>
-									  
-  
-								  </div>
-  
-						  </div>
-							  <!-- //tables -->
-					  
+<!-- APP MAIN ==========-->
+<main id="app-main" class="app-main">
+	<div class="wrap">
+	  <section class="app-content">
+		  <div class="row">
+			  <div class="col-md-12 col-sm-12">
+				  <div class="widget p-md clearfix">
+					  <div class="pull-left">
+						  <h3 class="widget-title">Welcome to ScrollMantra</h3>
 					  </div>
-					  <!-- //inner_content_w3_agile_info-->
-				  </div>
-		  <!-- //inner_content-->
-		  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-		  <script>
-			$(document).ready(function(){
-			  $("#myInput").on("keyup", function() {
-				var value = $(this).val().toLowerCase();
-				$("#myTable tr").filter(function() {
-				  $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-				});
-			  });
-			});
-			</script>
-			
+  
+				  </div><!-- .widget -->
+			  </div>
+  
+		  </div><!-- .row -->
+  
+		  <div class="row">
+			  <div class="col-md-12">
+				  <div class="widget">
+					  <header class="widget-header">
+						  <h4 class="widget-title">All Files </h4>
+                          <h1 id="userid" style="visibility:hidden"></h1>
+					  </header>
+					  <hr class="widget-separator"/>
+					  <div class="widget-body">
+						  <div class="table-responsive">							
+							  <table class="table no-cellborder">
+								  <thead>
+									  <tr>
+										 <th>Name</th>
+										 <th>Email</th>
+										 <th>File Name</th>
+										  <th>Type</th>
+										  <th>Bucket Name</th>
+										  <th>Folder Name</th>
+										  <th>URL</th>
+										</tr>
+								  </thead>
+								  <tbody id="userlist">
+                                    <% results.forEach(result => { %>
+                                        <tr>
+										<td><%=result.name%></td>
+										<td><%=result.email%></td>
+                                        <td><%=result.fname%></td>          
+                                        <td><%=result.extname%></td>
+                                        <td><%=result.bucketname%></td>
+                                        <td><%=result.foldername%></td>
+                                        <td><%=result.created_at%></td>
+										<td><%=result.url%></td>
+									</tr>
+                                        <% });%>
+								  </tbody>
+							  </table>
+						  </div>
+					  </div>
+				  </div><!-- .widget -->
+			  </div><!-- END column -->
+  
+		  
+		  </div><!-- .row -->
+  
+	  </section><!-- #dash-content -->
+  </div><!-- .wrap -->
+	<!-- APP FOOTER -->
+	<div class="wrap p-t-0">
+	  <footer class="app-footer">
+		<div class="clearfix">
+		  <div class="copyright pull-left">&copy; 2014-2021 | All Rights Reserved | Scroll Mantra </div>
+		</div>
+	  </footer>
+	</div>
+	<!-- /#app-footer -->
+  </main>
+  <!--========== END app main -->
+  
+  
   
