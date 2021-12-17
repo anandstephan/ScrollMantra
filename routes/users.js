@@ -7,8 +7,9 @@ const AWS = require("aws-sdk");
 const Info = require("../models/Info");
 const uploads3 = require("../middleware/awsupload");
 const nodemailer = require("nodemailer");
-const path = require("path");
-
+const keyId = require("../config/key").accessKeyId;
+const secretkey = require("../config/key").secretAccessKey;
+const region = require("../config/key").region;
 function sendMail(to, msg) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -152,16 +153,13 @@ router.post("/forgotpassword", async (req, res) => {
   }
 });
 
-router.get("/test2/:param", (req, res) => {
-  // console.log(req.params.param)
+router.get("/ajaxupload/:param", (req, res) => {
   let bucketname = req.params.param;
-  // Set Amazon Uploading Engine
+
   const s3 = new AWS.S3({
-    // accessKeyId: process.env.ACCESS_KEY_ID,
-    // secretAccessKey: process.env.SECRET_ACCESS_KEY,
-    accessKeyId: "AKIASPLFO6OWCMDC7X7C",
-    secretAccessKey: "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",
-    region: "ap-south-1",
+    accessKeyId: keyId,
+    secretAccessKey: secretkey,
+    region: region,
   });
 
   async function test2() {
@@ -171,24 +169,14 @@ router.get("/test2/:param", (req, res) => {
       })
       .promise()
       .then((data) => {
-        // console.log(data.Contents);
         let result = [];
         data.Contents.forEach(
           (content) => content.Size == 0 && result.push(content.Key)
         );
-        // console.log(result);
         res.status(200).json(result);
       });
   }
   test2();
-  // s3.listBuckets((err, data) => {
-  //   if (err) {
-  //     console.log("Error", err);
-  //   } else {
-  //     console.log("Success", data.Buckets);
-  //     res.render("upload", { buckets: data.Buckets });
-  //   }
-  // });
 });
 
 router.get("/test", (req, res) => {
@@ -199,9 +187,9 @@ router.get("/test", (req, res) => {
 router.get("/upload", (req, res) => {
   // Set Amazon Uploading Engine
   const s3 = new AWS.S3({
-    accessKeyId: "AKIASPLFO6OWCMDC7X7C",
-    secretAccessKey: "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",
-    region: "ap-south-1",
+    accessKeyId: keyId,
+    secretAccessKey: secretkey,
+    region: region,
   });
 
   s3.listBuckets((err, data) => {
@@ -216,30 +204,28 @@ router.get("/upload", (req, res) => {
 //upload a file post
 router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
   let location = [];
-  console.log(req.files);
   req.files.map((data) => location.push(data.location));
-  console.log(location);
   const id = req.session.passport.user;
-
-  // console.log(info);
-
+  // console.log(location);
   Info.find({ userid: id._id }).then((info) => {
-    // console.log(info.length);
+    const locationDetail = location[location.length - 1];
+    console.log("locationDetail", locationDetail);
+    const insertUrlDetail = { url: locationDetail, created_at: new Date() };
     const info1 = new Info({
       userid: id._id,
-      dataUrl: location[location.length - 1],
+      dataUrl: insertUrlDetail,
     });
     if (info.length == 0) {
       info1.save().then((infor) => {
-        console.log(infor);
+        console.log("info", infor);
       });
     } else {
       Info.findOneAndUpdate(
         { userid: id._id },
-        { $push: { dataUrl: location[0] } }
+        { $push: { dataUrl: insertUrlDetail } }
       ).exec((err, result) => {
         if (err) console.error(err);
-        console.log(result);
+        console.log("result", result);
       });
     }
   });

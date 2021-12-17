@@ -2,14 +2,16 @@
 const multer = require("multer");
 const AWS = require("aws-sdk");
 const multerS3 = require("multer-s3");
-
+const keyId = require("../config/key").accessKeyId;
+const secret = require("../config/key").secretAccessKey;
+const region = require("../config/key").region;
 // Set Amazon Uploading Engine
 const s3 = new AWS.S3({
   // accessKeyId: process.env.ACCESS_KEY_ID,
   // secretAccessKey: process.env.SECRET_ACCESS_KEY,
-  accessKeyId: "AKIASPLFO6OWCMDC7X7C",
-  secretAccessKey: "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",
-  region: "ap-south-1",
+  accessKeyId: keyId,
+  secretAccessKey: secret,
+  region: region,
 });
 
 // Init Upload AWS

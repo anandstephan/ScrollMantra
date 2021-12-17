@@ -10,7 +10,8 @@ const InfoSchema = new mongoose.Schema({
   dataUrl: {
     type: [
       {
-        type: "String",
+        url: String,
+        created_at: { type: Date, default: Date.now },
       },
     ],
   },

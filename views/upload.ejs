@@ -1,116 +1,94 @@
 
-					<div class="inner_content_w3_agile_info two_in">
-					  <h2 class="w3_inner_tittle">Upload File</h2>
+<!-- APP MAIN ==========-->
+<main id="app-main" class="app-main">
+  <div class="wrap">
+	<section class="app-content">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="widget">
+					<header class="widget-header">
+						<h4 class="widget-title">Dropzone</h4>
+					</header><!-- .widget-header -->
+					<hr class="widget-separator">
+					<div class="widget-body">
+              <form method="post" enctype="multipart/form-data" action="/uploaddata" >
+                <div class="form-group">
+                   <label for="exampleInputEmail1">Chose Bucket</label> 
+                   <select class="form-control" id="exampleSelect1" onchange="selectChange(this)" name="bucket" > 
 
-							<!--/forms-->
-													<div class="forms-main_agileits">
-														
-															<div class="graph-form agile_info_shadow">
-															 <h3 class="w3_inner_tittle two">Upload File </h3>
-																	<div class="form-body">
-																		<form method="post" enctype="multipart/form-data" action="/uploaddata" >
-                                      <div class="form-group">
-                                         <label for="exampleInputEmail1">Chose Bucket</label> 
-                                         <select class="form-control" id="exampleSelect1" onchange="selectChange(this)" name="bucket" style="height:56px"> 
-    
-                                          <% buckets.forEach(user => { %>
-                                            <option class="form-control" value=<%= user.Name %> selected="selected"><%= user.Name %></option>
-                                        <% });%>
-                                          </select> 
-                                        </div> 
-                                        <div class="form-group"> 
-                                          <label for="exampleInputPassword1">Folder Name</label> 
-                                          <select class="form-control" id="folder" onchange="selectChange(this)" name="folder" style="height:56px"> 
-                                          </select>
-                                      
-                                         </div> 
-                                         <div class="droparea">
-                                          <label for="formFile" class="form-label mt-4">Drag and Drop Your Files Here</label>
-                                        </div>
-                                        <div class="form-group">
-                                          <label for="formFile" class="form-label mt-4">Select Your Files</label>
-                                          <input class="form-control" type="file" id="formFile" name="img" multiple>
-                                        </div> 
-                                        <input class="btn btn-primary btn-block btn-lg" type="submit"  >    
-                                          </form> 
-																	</div>
+                    <% buckets.forEach(user => { %>
+                      <option class="form-control" value=<%= user.Name %> selected="selected"><%= user.Name %></option>
+                  <% });%>
+                    </select> 
+                  </div> 
+                  <div class="form-group"> 
+                    <label for="exampleInputPassword1">Folder Name</label> 
+                    <select class="form-control" id="folder" onchange="selectChange(this)" name="folder" > 
+                    </select>
+                
+                   </div> 
+                   <div class="droparea">
+                    <label for="formFile" class="form-label mt-4">Drag and Drop Your Files Here</label>
+                  </div>
+                  <div class="form-group">
+                    <label for="formFile" class="form-label mt-4">Select Your Files</label>
+                    <input class="form-control" type="file" id="formFile" name="img" multiple>
+                  </div> 
+                  <input class="btn btn-primary btn-block btn-lg" type="submit"  > 
+						</form>
+					</div><!-- .widget-body -->
+				</div><!-- .widget -->
+			</div><!-- END column -->
+		</div><!-- .row -->
+	</section><!-- #dash-content -->
+</div><!-- .wrap -->
+  <!-- APP FOOTER -->
+  <div class="wrap p-t-0">
+    <footer class="app-footer">
+      <div class="clearfix">
+        <ul class="footer-menu pull-right">
+          <li><a href="javascript:void(0)">Careers</a></li>
+          <li><a href="javascript:void(0)">Privacy Policy</a></li>
+          <li><a href="javascript:void(0)">Feedback <i class="fa fa-angle-up m-l-md"></i></a></li>
+        </ul>
+        <div class="copyright pull-left">Copyright RaThemes 2016 &copy;</div>
+      </div>
+    </footer>
+  </div>
+  <!-- /#app-footer -->
+</main>
+<!--========== END app main -->
 
-															</div>
-																<!--/forms-inner-->
-													  				
-																	<!--//forms-inner-->
-																</div> 
-														<!--//forms-->											   
-					
-							<!-- /social_media-->
-						  
-						<!-- //social_media-->
-				    </div>
-					<!-- //inner_content_w3_agile_info-->
-				</div>
-		<!-- //inner_content-->
-	</div>
-<!-- banner -->
-
-<!-- js -->
-
-          <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
-		  <script src="js/modernizr.custom.js"></script>
-		
-		   <script src="js/classie.js"></script>
-		  <script src="js/gnmenu.js"></script>
-		  <script>
-			new gnMenu( document.getElementById( 'gn-menu' ) );
-		 </script>
-
-<!-- //js -->
-<script src="js/screenfull.js"></script>
-		<script>
-		$(function () {
-			$('#supported').text('Supported/allowed: ' + !!screenfull.enabled);
-
-			if (!screenfull.enabled) {
-				return false;
-			}
-
-			
-
-			$('#toggle').click(function () {
-				screenfull.toggle($('#container')[0]);
-			});	
-		});
-		</script>
-<script src="js/jquery.nicescroll.js"></script>
-<script src="js/scripts.js"></script>
-
-<script type="text/javascript" src="js/bootstrap-3.1.1.min.js"></script>
 <script>
     
-  function selectChange(e){
-    console.log(e.value)
+  function selectChange(e){ 
 
     var xmlhttp = new XMLHttpRequest();
+    
     // document.getElementById("folder").innerHTML = ''
 xmlhttp.onreadystatechange = function() {
-
-  if (xmlhttp.readyState == XMLHttpRequest.DONE) {   // XMLHttpRequest.DONE == 4
-    // console.log("test2",xmlhttp.status);
+  
+  if (xmlhttp.readyState == 4&& xmlhttp.status == 200) {   // XMLHttpRequest.DONE == 4
+  
      if (xmlhttp.status == 200) {
       //  console.log("test",xmlhttp.responseText);
 
        let result = JSON.parse(xmlhttp.responseText)
-      console.log(result)
+  
        let result1 = [];
        for(let i=0;i<result.length;i++)
        result1.push(result[i]);
+       console.log(result1)
       let select = document.getElementById("folder")
+      if(select.options.length !=0) select.innerHTML = ''
        result1.forEach(name =>{
          
         let opt = document.createElement('option');
         opt.value = name;
         opt.innerHTML = name;
-        folder.appendChild(opt);
-         
+        select.appendChild(opt);
+          
+
        })
         //  document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
      }
@@ -123,7 +101,7 @@ xmlhttp.onreadystatechange = function() {
   }
 };
 
-xmlhttp.open("GET", `test2/${e.value}`, true);
+xmlhttp.open("GET", `ajaxupload/${e.value}`, true);
 xmlhttp.send();
 
   }
