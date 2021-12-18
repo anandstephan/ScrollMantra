@@ -62,7 +62,7 @@
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
-	fetch("http://localhost:8000/showalluserstatus")
+	fetch("/showalluserstatus")
 		.then(data => data.json())
 		.then(result => {
 			console.log(result)

@@ -65,23 +65,24 @@
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
-	fetch("/adminshowallfiles")
+    let id = '<%=userId._id%>'
+	fetch(`/showallfiles/${id}`)
 		.then(data => data.json())
 		.then(result => {
+			console.log(result)
 		const list = document.querySelector("#userlist");
 		result.map(res =>{
 			const row = document.createElement('tr');
         row.innerHTML = `
-                    <td>${res.username}</td>
+					<td>${res.filename}</td>
                     <td>${res.extname}</td>
                     <td>${res.bucketname}</td>
 					<td>${res.foldername}</td>
-					<td>${res.filename}</td>
                     <td>${res.createdAt}</td>
-                    `;
+                    <td><a href="${res.url}">Dowload</a></td>
+					`;
         list.appendChild(row);
 		})
-
 		})
 })
 

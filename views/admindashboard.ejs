@@ -20,7 +20,7 @@
 				  <div class="widget stats-widget">
 					  <div class="widget-body clearfix">
 						  <div class="pull-left">
-							  <h3 class="widget-title text-primary"><span class="counter" id="uploadfile">0</span></h3>
+							  <h3 class="widget-title text-primary"><span class="counter" id="counter" data-plugin="counterUp" id="uploadfile">0</span></h3>
 							  <small class="text-color">Total uploads From Last 7 days</small>
 						  </div>
 						  <span class="pull-right big-icon watermark"><i class="fa fa-paperclip"></i></span>
@@ -35,7 +35,7 @@
 				  <div class="widget stats-widget">
 					  <div class="widget-body clearfix">
 						  <div class="pull-left">
-							  <h3 class="widget-title text-danger"><span class="counter" id="images">0</span></h3>
+							  <h3 class="widget-title text-danger"><span class="counter" id="images" data-plugin="counterUp">0</span></h3>
 							  <small class="text-color"> Images From Last 7 days </small>
 						  </div>
 						  <span class="pull-right big-icon watermark"><i class="fa fa-ban"></i></span>
@@ -50,7 +50,7 @@
 				  <div class="widget stats-widget">
 					  <div class="widget-body clearfix">
 						  <div class="pull-left">
-							  <h3 class="widget-title text-success"><span class="counter" id="uploaduser">0</span></h3>
+							  <h3 class="widget-title text-success"><span class="counter" id="uploaduser" data-plugin="counterUp">0</span></h3>
 							  <small class="text-color"> User From Last 7 days</small>
 						  </div>
 						  <span class="pull-right big-icon watermark"><i class="fa fa-unlock-alt"></i></span>
@@ -65,7 +65,7 @@
 				  <div class="widget stats-widget">
 					  <div class="widget-body clearfix">
 						  <div class="pull-left">
-							  <h3 class="widget-title text-warning"><span class="counter" id="txt">0</span></h3>
+							  <h3 class="widget-title text-warning"><span class="counter" id="txt" data-plugin="counterUp">0</span></h3>
 							  <small class="text-color"> Text File From Last 7 days</small>
 						  </div>
 						  <span class="pull-right big-icon watermark"><i class="fa fa-file-text-o"></i></span>
@@ -172,43 +172,37 @@
   
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
-	fetch("http://localhost:8000/uploadlast7days")
+	fetch("/uploadlast7days")
 	.then(data => data.json())
 	.then(res => {
 		document.getElementById("uploadfile").textContent = res
-		document.getElementById("uploadfile").setAttribute("data-plugin","counterUp");
-
+		
 	})
 
 
-	fetch("http://localhost:8000/uploaduserlast7days")
+	fetch("/uploaduserlast7days")
 	.then(data => data.json())
 	.then(res => {
 		document.getElementById("uploaduser").textContent = res
-		document.getElementById("uploaduser").setAttribute("data-plugin","counterUp");
 
 	})
 
 
 
-	fetch("http://localhost:8000/uploadimageslast7days/pdf")
+	fetch("/uploadimageslast7days/pdf")
 	.then(data => data.json())
 	.then(res => {
 		document.getElementById("images").textContent = res
-		document.getElementById("images").setAttribute("data-plugin","counterUp");
-
 	})
 
 
-	fetch("http://localhost:8000/uploadimageslast7days/txt")
+	fetch("/uploadimageslast7days/txt")
 	.then(data => data.json())
 	.then(res => {
 		document.getElementById("txt").textContent = res
-		document.getElementById("txt").setAttribute("data-plugin","counterUp");
-
 	})
 
-	fetch("http://localhost:8000/adminshowallfiles")
+	fetch("/adminshowallfiles")
 		.then(data => data.json())
 		.then(result => {
 		const list = document.querySelector("#userlist");

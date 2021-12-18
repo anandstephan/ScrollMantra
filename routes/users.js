@@ -150,7 +150,7 @@ router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
   // console.log(location);
   Info.find({ userid: id._id }).then((info) => {
     const locationDetail = location[location.length - 1];
-    console.log("locationDetail", locationDetail);
+    // console.log("locationDetail", locationDetail);
     const insertUrlDetail = { url: locationDetail, created_at: new Date() };
     const info1 = new Info({
       userid: id._id,
@@ -158,7 +158,7 @@ router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
     });
     if (info.length == 0) {
       info1.save().then((infor) => {
-        console.log("info", infor);
+        // console.log("info", infor);
       });
     } else {
       Info.findOneAndUpdate(
@@ -166,7 +166,7 @@ router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
         { $push: { dataUrl: insertUrlDetail } }
       ).exec((err, result) => {
         if (err) console.error(err);
-        console.log("result", result);
+        // console.log("result", result);
       });
     }
   });
@@ -187,8 +187,10 @@ const checkAuthenicated = function (req, res, next) {
 //Dashboard Handler
 router.get("/dashboard", checkAuthenicated, (req, res) => {
   // console.log(req.session.passport.user);
-  // res.sendFile(require("path").resolve(__dirname, ".." + "/dashboard.html"));
-  res.render("dashboard", { layout: "layout" });
+  res.render("dashboard", {
+    layout: "layout",
+    userId: req.session.passport.user,
+  });
 });
 
 //Logout Handler
@@ -250,28 +252,28 @@ router.get("/adminallfiles", async (req, res) => {
   res.render("showAllFiles", { layout: "loginlayout" });
 });
 
-router.get("/showallfiles", async (req, res) => {
+router.get("/showallfiles/:id", async (req, res) => {
   try {
-    const info = await Info.find({ userid: req.session.passport.user }).lean();
-    // console.log(info);
+    const infos = await Info.find({ userid: req.params.id })
+      .populate("userid", "name")
+      .lean();
     let result = [];
-    info[0].dataUrl.map((data) => {
-      // console.log(data);
-      result.push({
-        url: data,
-        name: data.split("/").pop(),
-        extname: data.split(".").pop(),
-        bucketname: data.split(".")[0].split("//")[1],
-        foldername: data.split("/")[3],
-      });
+    infos.map((info) => {
+      info.dataUrl.map((inf) =>
+        result.push({
+          url: inf.url,
+          filename: inf.url.split("/").pop(),
+          extname: inf.url.split(".").pop(),
+          bucketname: inf.url.split(".")[0].split("//")[1],
+          foldername: inf.url.split("/")[3],
+          username: info.userid.name,
+          createdAt: inf.created_at,
+        })
+      );
     });
-    res.render("showAllFiles", {
-      layout: "layout",
-      users: result,
-      name: req.session.passport.user.name,
-    });
+    res.status(200).json(result);
   } catch (err) {
-    console.error(err);
+    console.log(err);
   }
 });
 
@@ -418,7 +420,9 @@ router.get("/uploadimageslast7days/:param", async (req, res) => {
     let urlArry2 = [];
     urlArry1.map((url) => url.map((url1) => urlArry2.push(url1.url)));
     let count = 0;
+    // console.log(urlArry2);
     urlArry2.map((url) => (url.search(req.params.param) != -1 ? count++ : ""));
+    // console.log(count);
     res.status(200).json(count);
     // res.status(200).json(image);
   } catch (error) {
@@ -447,6 +451,25 @@ router.get("/user/:id", async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+});
+
+router.get("/uploadfilelast7days/:id", async (req, res) => {
+  try {
+    const info = await Info.findOne({
+      userid: req.params.id,
+      timestamp: { $lte: new Date(), $gte: new Date(Date() - 7) },
+    }).lean();
+    res.status(200).json(info.dataUrl.length);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+router.get("/usershowallfile", (req, res) => {
+  res.render("usershowallfile", {
+    layout: "layout",
+    userId: req.session.passport.user,
+  });
 });
 
 module.exports = router;
