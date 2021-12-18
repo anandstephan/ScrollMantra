@@ -20,7 +20,7 @@
 				  <div class="widget stats-widget">
 					  <div class="widget-body clearfix">
 						  <div class="pull-left">
-							  <h3 class="widget-title text-primary"><span class="counter" id="counter" data-plugin="counterUp" id="uploadfile">0</span></h3>
+							  <h3 class="widget-title text-primary"><span class="counter" id="uploadfile23" >0</span></h3>
 							  <small class="text-color">Total uploads From Last 7 days</small>
 						  </div>
 						  <span class="pull-right big-icon watermark"><i class="fa fa-paperclip"></i></span>
@@ -35,7 +35,7 @@
 				  <div class="widget stats-widget">
 					  <div class="widget-body clearfix">
 						  <div class="pull-left">
-							  <h3 class="widget-title text-danger"><span class="counter" id="images" data-plugin="counterUp">0</span></h3>
+							  <h3 class="widget-title text-danger"><span class="counter" id="images2" data-plugin="counterUp">0</span></h3>
 							  <small class="text-color"> Images From Last 7 days </small>
 						  </div>
 						  <span class="pull-right big-icon watermark"><i class="fa fa-ban"></i></span>
@@ -50,7 +50,7 @@
 				  <div class="widget stats-widget">
 					  <div class="widget-body clearfix">
 						  <div class="pull-left">
-							  <h3 class="widget-title text-success"><span class="counter" id="uploaduser" data-plugin="counterUp">0</span></h3>
+							  <h3 class="widget-title text-success"><span class="counter" id="uploaduser1" >0</span></h3>
 							  <small class="text-color"> User From Last 7 days</small>
 						  </div>
 						  <span class="pull-right big-icon watermark"><i class="fa fa-unlock-alt"></i></span>
@@ -111,48 +111,48 @@
 		  </div><!-- .row -->
   
 		  <div class="row">
-			  <div class="col-md-12 col-sm-12">
-				  <div class="widget">
-					  <header class="widget-header">
-						  <h4 class="widget-title">Activities</h4>
-					  </header>
-					  <hr class="widget-separator" />
-					  <div class="widget-body">
-						  <div class="streamline">
-							  <div class="sl-item sl-primary">
-								  <div class="sl-content">
-									  <small class="text-muted">23 mins ago</small>
-									  <p>John has just started working on the project</p>
-								  </div>
-							  </div><!-- .sl-item -->
-  
-							  <div class="sl-item sl-danger">
-								  <div class="sl-content">
-									  <small class="text-muted">23 mins ago</small>
-									  <p>Jane sent you invitation to attend the party</p>
-								  </div>
-							  </div><!-- .sl-item -->
-  
-							  <div class="sl-item sl-success">
-								  <div class="sl-content">
-									  <small class="text-muted">23 mins ago</small>
-									  <p>Sally added you to her circles</p>
-								  </div>
-							  </div><!-- .sl-item -->
-  
-							  <div class="sl-item sl-warning">
-								  <div class="sl-content">
-									  <small class="text-muted">23 mins ago</small>
-									  <p>Sara has finished her task</p>
-								  </div>
-							  </div><!-- .sl-item -->
-						  </div><!-- .streamline -->
-					  </div>
-				  </div><!-- .widget -->
-			  </div>
-  
+			<div class="col-md-12 col-sm-12">
+				<div class="widget">
+					<header class="widget-header">
+						<h4 class="widget-title">Activities</h4>
+					</header>
+					<hr class="widget-separator" />
+					<div class="widget-body">
+						<div class="streamline">
+							<div class="sl-item sl-primary">
+								<div class="sl-content">
+									<small class="text-muted" id="upload1">23 mins ago</small>
+									<p>Total Upload From Last 7 days</p>
+								</div>
+							</div><!-- .sl-item -->
 
-		  </div><!-- .row -->
+							<div class="sl-item sl-danger">
+								<div class="sl-content">
+									<small class="text-muted" id="pdf">23 mins ago</small>
+									<p>Total Pdf File From Last 7 days</p>
+								</div>
+							</div><!-- .sl-item -->
+
+							<div class="sl-item sl-success">
+								<div class="sl-content">
+									<small class="text-muted" id="png">23 mins ago</small>
+									<p>Total Png File From Last 7 days</p>
+								</div>
+							</div><!-- .sl-item -->
+
+							<div class="sl-item sl-warning">
+								<div class="sl-content">
+									<small class="text-muted" id="txtupload">23 mins ago</small>
+									<p>Total Text File From Last 7 days</p>
+								</div>
+							</div><!-- .sl-item -->
+						</div><!-- .streamline -->
+					</div>
+				</div><!-- .widget -->
+			</div>
+
+
+		</div><!-- .row -->
   
 	  </section><!-- #dash-content -->
   </div><!-- .wrap -->
@@ -171,11 +171,14 @@
   
   
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
 	fetch("/uploadlast7days")
 	.then(data => data.json())
 	.then(res => {
-		document.getElementById("uploadfile").textContent = res
+		// console.log(res)
+		document.getElementById("uploadfile23").textContent = res
+		// alert(document.getElementById("uploadfile23").textContent)
+		document.getElementById("upload1").textContent = res
+		
 		
 	})
 
@@ -183,16 +186,20 @@ document.addEventListener("DOMContentLoaded",()=>{
 	fetch("/uploaduserlast7days")
 	.then(data => data.json())
 	.then(res => {
-		document.getElementById("uploaduser").textContent = res
+		document.getElementById("uploaduser1").textContent = res
+		// alert(res )
+		document.getElementById("png").textContent = res
 
 	})
 
 
-
+       
 	fetch("/uploadimageslast7days/pdf")
 	.then(data => data.json())
 	.then(res => {
-		document.getElementById("images").textContent = res
+		document.getElementById("images2").textContent = res
+		// alert(res)
+		document.getElementById("pdf").textContent = res
 	})
 
 
@@ -200,6 +207,8 @@ document.addEventListener("DOMContentLoaded",()=>{
 	.then(data => data.json())
 	.then(res => {
 		document.getElementById("txt").textContent = res
+		document.getElementById("txtupload").textContent = res
+			
 	})
 
 	fetch("/adminshowallfiles")
@@ -220,6 +229,5 @@ document.addEventListener("DOMContentLoaded",()=>{
 		})
 
 		})
-})
 
 </script>  

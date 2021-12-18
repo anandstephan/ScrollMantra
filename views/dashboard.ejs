@@ -1,6 +1,3 @@
-
-
-
 <!-- APP MAIN ==========-->
 <main id="app-main" class="app-main">
   <div class="wrap">
@@ -123,29 +120,29 @@
 						<div class="streamline">
 							<div class="sl-item sl-primary">
 								<div class="sl-content">
-									<small class="text-muted">23 mins ago</small>
-									<p>John has just started working on the project</p>
+									<small class="text-muted" id="upload">23 mins ago</small>
+									<p>Total Upload From Last 7 days</p>
 								</div>
 							</div><!-- .sl-item -->
 
 							<div class="sl-item sl-danger">
 								<div class="sl-content">
-									<small class="text-muted">23 mins ago</small>
-									<p>Jane sent you invitation to attend the party</p>
+									<small class="text-muted" id="pdf">23 mins ago</small>
+									<p>Total Pdf File From Last 7 days</p>
 								</div>
 							</div><!-- .sl-item -->
 
 							<div class="sl-item sl-success">
 								<div class="sl-content">
-									<small class="text-muted">23 mins ago</small>
-									<p>Sally added you to her circles</p>
+									<small class="text-muted" id="png">23 mins ago</small>
+									<p>Total Png File From Last 7 days</p>
 								</div>
 							</div><!-- .sl-item -->
 
 							<div class="sl-item sl-warning">
 								<div class="sl-content">
-									<small class="text-muted">23 mins ago</small>
-									<p>Sara has finished her task</p>
+									<small class="text-muted" id="txt">23 mins ago</small>
+									<p>Total Text File From Last 7 days</p>
 								</div>
 							</div><!-- .sl-item -->
 						</div><!-- .streamline -->
@@ -169,24 +166,29 @@
 		.then(res => res.json())
 		.then(data => {
 			document.getElementById("uploadfile").textContent = data
+			document.getElementById("upload").textContent = data
 		})
 
 	fetch('/uploadimageslast7days/pdf')
 		.then(res => res.json())
 		.then(data => {
 			document.getElementById("pdfupload").textContent = data
+			document.getElementById("pdf").textContent = data
 		})
 
 		fetch('/uploadimageslast7days/png')
 		.then(res => res.json())
 		.then(data => {
 			document.getElementById("pngupload").textContent = data
+			document.getElementById("png").textContent = data
 		})
 
 		fetch('/uploadimageslast7days/txt')
 		.then(res => res.json())
 		.then(data => {
 			document.getElementById("txtupload").textContent = data
+			document.getElementById("txt").textContent = data
+			
 		})
 
 		

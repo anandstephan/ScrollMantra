@@ -55,7 +55,7 @@ router.post("/login", (req, res, next) => {
     res.render("login", { errors, email, password, layout: "singlelayout" });
   } else {
     if (email == "admin@gmail.com" && password == "1234567890") {
-      console.log("TEST");
+      // console.log("TEST");
       // req.session.passport.user = email;
       res.redirect("/admin");
     } else {
@@ -124,8 +124,19 @@ router.get("/test", (req, res) => {
   res.render("pdfviewer");
 });
 
+const checkAuthenicated = function (req, res, next) {
+  if (req.isAuthenticated()) {
+    res.set(
+      "Cache-Control",
+      "no-cache,private,no-store,must-relative,post-check=0,pre-check=0"
+    );
+    return next();
+  } else {
+    res.redirect("/");
+  }
+};
 //upload file get
-router.get("/upload", (req, res) => {
+router.get("/upload", checkAuthenicated, (req, res) => {
   // Set Amazon Uploading Engine
   const s3 = new AWS.S3({
     accessKeyId: keyId,
@@ -173,17 +184,6 @@ router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
   res.redirect("/dashboard");
 });
 
-const checkAuthenicated = function (req, res, next) {
-  if (req.isAuthenticated()) {
-    res.set(
-      "Cache-Control",
-      "no-cache,private,no-store,must-relative,post-check=0,pre-check=0"
-    );
-    return next();
-  } else {
-    res.redirect("/login");
-  }
-};
 //Dashboard Handler
 router.get("/dashboard", checkAuthenicated, (req, res) => {
   // console.log(req.session.passport.user);
