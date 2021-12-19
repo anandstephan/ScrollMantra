@@ -506,4 +506,28 @@ router.get("/usershowallfile", (req, res) => {
   });
 });
 
+router.get("/search/:filename", async (req, res) => {
+  try {
+    const images = await Info.find().lean();
+    // console.log(images);
+    let UrlArry = images.map((img) => img.dataUrl);
+    // console.log(UrlArry);
+    let urlArry1 = UrlArry.map((url) => url);
+    // console.log(urlArry1);
+    let urlArry2 = [];
+    // let urlArry3 = [];
+    urlArry1.map((url) => url.map((url1) => urlArry2.push(url1.url)));
+
+    // let count = 0;
+    // urlArry2.map((url) => url.map((url1) => urlArry3.push(url1)));
+    // // console.log(urlArry3);
+    // urlArry3.map((url) => (url.search(req.params.param) != -1 ? count++ : ""));
+    // // console.log(count);
+    // res.status(200).json(count);
+    // res.status(200).json(image);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 module.exports = router;
