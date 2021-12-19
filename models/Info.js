@@ -11,7 +11,7 @@ const InfoSchema = new mongoose.Schema(
     dataUrl: {
       type: [
         {
-          url: String,
+          url: [],
           created_at: { type: Date, default: Date.now },
         },
       ],

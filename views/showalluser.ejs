@@ -30,6 +30,7 @@
 										 <th>Name</th>
 										  <th>Email</th>
 										  <th>More Details</th>
+										  <th>Delete User</th>
 										</tr>
 								  </thead>
 								  <tbody id="userlist">
@@ -73,7 +74,7 @@ document.addEventListener("DOMContentLoaded",()=>{
                     <td>${res.name}</td>
                     <td>${res.email}</td>
 					<td><a href="/user/${res.id}" class="btn btn-info">More Detail</a></td>
-                
+					<td><a href="/deleteuser/${res.id}" class="btn btn-danger">Delete User</a></td>
                     `;
         list.appendChild(row);
 		})

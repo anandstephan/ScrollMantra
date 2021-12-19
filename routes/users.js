@@ -10,6 +10,8 @@ const nodemailer = require("nodemailer");
 const keyId = require("../config/key").accessKeyId;
 const secretkey = require("../config/key").secretAccessKey;
 const region = require("../config/key").region;
+const moment = require("moment");
+
 function sendMail(to, msg) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -157,12 +159,13 @@ router.get("/upload", checkAuthenicated, (req, res) => {
 router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
   let location = [];
   req.files.map((data) => location.push(data.location));
+  // console.log(req.files);
   const id = req.session.passport.user;
   // console.log(location);
   Info.find({ userid: id._id }).then((info) => {
-    const locationDetail = location[location.length - 1];
+    // const locationDetail = location[location.length - 1];
     // console.log("locationDetail", locationDetail);
-    const insertUrlDetail = { url: locationDetail, created_at: new Date() };
+    const insertUrlDetail = { url: location, created_at: new Date() };
     const info1 = new Info({
       userid: id._id,
       dataUrl: insertUrlDetail,
@@ -229,19 +232,21 @@ router.get("/adminshowallfiles", async (req, res) => {
   try {
     const infos = await Info.find().populate("userid", "name").lean();
     let result = [];
-    infos.map((info) => {
-      info.dataUrl.map((inf) =>
-        result.push({
-          url: inf.url,
-          filename: inf.url.split("/").pop(),
-          extname: inf.url.split(".").pop(),
-          bucketname: inf.url.split(".")[0].split("//")[1],
-          foldername: inf.url.split("/")[3],
-          username: info.userid.name,
-          createdAt: inf.created_at,
-        })
-      );
-    });
+    const infos1 = infos.map((info) =>
+      info.dataUrl.map((test) =>
+        test.url.map((test2) =>
+          result.push({
+            url: test2,
+            filename: test2.split("/").pop(),
+            extname: test2.split(".").pop(),
+            bucketname: test2.split(".")[0].split("//")[1],
+            foldername: test2.split("/")[3],
+            username: info.userid.name,
+            createdAt: moment(test.created_at).format("YYYY-MM-DD"),
+          })
+        )
+      )
+    );
     res.status(200).json(result);
   } catch (err) {
     console.error(err);
@@ -258,19 +263,21 @@ router.get("/showallfiles/:id", async (req, res) => {
       .populate("userid", "name")
       .lean();
     let result = [];
-    infos.map((info) => {
-      info.dataUrl.map((inf) =>
-        result.push({
-          url: inf.url,
-          filename: inf.url.split("/").pop(),
-          extname: inf.url.split(".").pop(),
-          bucketname: inf.url.split(".")[0].split("//")[1],
-          foldername: inf.url.split("/")[3],
-          username: info.userid.name,
-          createdAt: inf.created_at,
-        })
-      );
-    });
+    infos.map((info) =>
+      info.dataUrl.map((tes) =>
+        tes.url.map((test) =>
+          result.push({
+            url: test,
+            filename: test.split("/").pop(),
+            extname: test.split("/").pop(),
+            bucketname: test.split(".")[0].split("//")[1],
+            foldername: test.split("/")[3],
+            username: info.userid.name,
+            createdAt: moment(tes.created_at).format("YYYY-MM-DD"),
+          })
+        )
+      )
+    );
     res.status(200).json(result);
   } catch (err) {
     console.log(err);
@@ -287,7 +294,9 @@ router.get("/history", async (req, res) => {
       result.push({
         uid: data.userid,
         fname: data.dataUrl.map((url1) => url1.url),
-        created_at: data.dataUrl.map((url) => url.created_at),
+        created_at: data.dataUrl.map((url) =>
+          moment(url.created_at).format("YYYY-MM-DD")
+        ),
       });
     });
     // console.log(result);
@@ -310,21 +319,32 @@ router.get("/history", async (req, res) => {
       });
     }
     // console.log(mergeDetails);
+    // mergeDetails.map((md) =>
+    //   md.allfiles.map((allfile) => console.log(allfile))
+    // );
     let newresult = [];
     mergeDetails.map((md) =>
       md.allfiles.map((allfile) =>
         newresult.push({
-          fname: allfile.split("/").pop(),
+          fname: allfile.map((af) => af.split("/").pop()),
           name: md.name,
           email: md.email,
-          extname: allfile.split(".").pop(),
-          bucketname: allfile.split(".")[0].split("//")[1],
-          foldername: allfile.split("/")[3],
+          extname: allfile.map((af) => af.split(".").pop()),
+          bucketname: allfile.map((af) => af.split(".")[0].split("//")[1]),
+          foldername: allfile.map((af) => af.split("/")[3]),
           url: allfile,
         })
       )
     );
-    // console.log(newresult);
+    console.log(newresult);
+    // let newresult1 = [];
+    // newresult.map((newres) =>
+    //   newresult1.push({
+    //     name: newres.name,
+    //     fname: newres.fname.map((newres1) => newres1),
+    //   })
+    // );
+    // console.log(newresult1);
     res.render("history", { layout: "loginlayout", results: newresult });
   } catch (err) {
     console.error(err);
@@ -418,10 +438,12 @@ router.get("/uploadimageslast7days/:param", async (req, res) => {
     let UrlArry = images.map((img) => img.dataUrl);
     let urlArry1 = UrlArry.map((url) => url);
     let urlArry2 = [];
+    let urlArry3 = [];
     urlArry1.map((url) => url.map((url1) => urlArry2.push(url1.url)));
     let count = 0;
-    // console.log(urlArry2);
-    urlArry2.map((url) => (url.search(req.params.param) != -1 ? count++ : ""));
+    urlArry2.map((url) => url.map((url1) => urlArry3.push(url1)));
+    // console.log(urlArry3);
+    urlArry3.map((url) => (url.search(req.params.param) != -1 ? count++ : ""));
     // console.log(count);
     res.status(200).json(count);
     // res.status(200).json(image);
@@ -443,11 +465,21 @@ router.get("/user/:id", async (req, res) => {
           extname: inf.url.split(".").pop(),
           bucketname: inf.url.split(".")[0].split("//")[1],
           foldername: inf.url.split("/")[3],
-          created_at: inf.created_at,
+          created_at: moment(inf.created_at).format("YYYY-MM-DD"),
         })
       )
     );
     res.render("showSingleUser", { results: result, layout: "loginlayout" });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.get("/deleteuser/:id", async (req, res) => {
+  try {
+    const infos = await Info.findOneAndRemove({ userid: req.params.id });
+    const users = await User.findByIdAndRemove(req.params.id);
+    res.redirect("/showalluser");
   } catch (error) {
     console.log(error);
   }
@@ -459,7 +491,9 @@ router.get("/uploadfilelast7days/:id", async (req, res) => {
       userid: req.params.id,
       timestamp: { $lte: new Date(), $gte: new Date(Date() - 7) },
     }).lean();
-    res.status(200).json(info.dataUrl.length);
+    // console.log(info);
+    if (info != null) res.status(200).json(info.dataUrl.length);
+    else res.status(200).json(0);
   } catch (err) {
     console.error(err);
   }
