@@ -131,6 +131,33 @@ router.get("/ajaxupload/:param", (req, res) => {
   test2();
 });
 
+router.get("/ajaxupload2/:param", (req, res) => {
+  let bucketname = "anandbro";
+
+  const s3 = new AWS.S3({
+    accessKeyId: keyId,
+    secretAccessKey: secretkey,
+    region: region,
+  });
+
+  async function test2() {
+    await s3
+      .listObjectsV2({
+        Bucket: bucketname,
+      })
+      .promise()
+      .then((data) => {
+        console.log(data);
+        let result = [];
+        data.Contents.forEach(
+          (content) => content.Size == 0 && result.push(content.Key)
+        );
+        res.status(200).json(result);
+      });
+  }
+  test2();
+});
+
 router.get("/test", (req, res) => {
   res.render("pdfviewer");
 });
@@ -181,6 +208,27 @@ router.get("/adminupload", checkAuthenicated, (req, res) => {
       console.log("Error", err);
     } else {
       res.render("upload", {
+        buckets: data.Buckets,
+        layout: "loginlayout",
+        userId: req.session.passport.user,
+      });
+    }
+  });
+});
+
+//Admin Delete
+router.get("/admindelete", checkAuthenicated, (req, res) => {
+  const s3 = new AWS.S3({
+    accessKeyId: keyId,
+    secretAccessKey: secretkey,
+    region: region,
+  });
+
+  s3.listBuckets((err, data) => {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      res.render("uploadelete", {
         buckets: data.Buckets,
         layout: "loginlayout",
         userId: req.session.passport.user,
@@ -276,7 +324,10 @@ router.get("/logout", (req, res) => {
 });
 
 router.get("/admin", (req, res) => {
-  res.render("admindashboard", { layout: "loginlayout" });
+  res.render("admindashboard", {
+    layout: "loginlayout",
+    userId: req.session.passport.user,
+  });
 });
 
 router.get("/showalluser", checkAuthenicated, async (req, res) => {

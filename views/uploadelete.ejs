@@ -1,0 +1,135 @@
+
+<!-- APP MAIN ==========-->
+<main id="app-main" class="app-main">
+    <div class="wrap">
+      <section class="app-content">
+          <div class="row">
+              <div class="col-md-12">
+                  <div class="widget">
+                      <header class="widget-header">
+                          <h4 class="widget-title">Upload File</h4>
+                      </header><!-- .widget-header -->
+                      <hr class="widget-separator">
+            <%- include('partials/messages') %>
+          
+                      <div class="widget-body">
+                <form method="post" enctype="multipart/form-data" action="/uploaddata" >
+                  <div class="form-group">
+                     <label for="exampleInputEmail1">Chose Bucket</label> 
+                     <select class="form-control" id="exampleSelect1" onchange="selectChange(this)" name="bucket" > 
+  
+                      <% buckets.forEach(user => { %>
+                        <option class="form-control" value=<%= user.Name %> selected="selected"><%= user.Name %></option>
+                    <% });%>
+                      </select> 
+                    </div> 
+                    <div class="form-group"> 
+                      <label for="exampleInputPassword1">Folder Name</label> 
+                      <select class="form-control" id="folder" onchange="selectChange(this)" name="folder" > 
+                      </select>
+                  
+                     </div> 
+                    <div class="form-group">
+                      <label for="formFile" class="form-label mt-4">Select Your Files</label>
+                      <input class="form-control" type="file" id="formFile" name="img" multiple>
+                    </div> 
+                    <input class="btn btn-primary btn-block btn-lg" type="submit"  > 
+                          </form>
+                      </div><!-- .widget-body -->
+                  </div><!-- .widget -->
+              </div><!-- END column -->
+          </div><!-- .row -->
+      </section><!-- #dash-content -->
+  </div><!-- .wrap -->
+    <!-- APP FOOTER -->
+    <div class="wrap p-t-0">
+      <footer class="app-footer">
+        <div class="clearfix">
+          <div class="copyright pull-left"> &copy;2021 | All Rights Reserved | Scroll Mantra</div>
+        </div>
+      </footer>
+    </div>
+    <!-- /#app-footer -->
+  </main>
+  <!--========== END app main -->
+  
+  <script>
+      
+    function selectChange(e){ 
+  
+      var xmlhttp = new XMLHttpRequest();
+      
+      // document.getElementById("folder").innerHTML = ''
+  xmlhttp.onreadystatechange = function() {
+    
+    if (xmlhttp.readyState == 4&& xmlhttp.status == 200) {   // XMLHttpRequest.DONE == 4
+    
+       if (xmlhttp.status == 200) {
+        //  console.log("test",xmlhttp.responseText);
+  
+         let result = JSON.parse(xmlhttp.responseText)
+    
+         let result1 = [];
+         for(let i=0;i<result.length;i++)
+         result1.push(result[i]);
+         console.log(result1)
+        let select = document.getElementById("folder")
+        if(select.options.length !=0) select.innerHTML = ''
+         result1.forEach(name =>{
+           
+          let opt = document.createElement('option');
+          opt.value = name;
+          opt.innerHTML = name;
+          select.appendChild(opt);
+            
+  
+         })
+          //  document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+       }
+       else if (xmlhttp.status == 400) {
+          alert('There was an error 400');
+       }
+       else {
+           alert('something else other than 200 was returned');
+       }
+    }
+  };
+  
+  xmlhttp.open("GET", `ajaxupload/${e.value}`, true);
+  xmlhttp.send();
+  
+    }
+  
+    const droparea = document.querySelector(".droparea");
+  
+  droparea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  droparea.classList.add("hover");
+  });
+  
+  droparea.addEventListener("dragleave", () => {
+  droparea.classList.remove("hover");
+  });
+  
+  droparea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  
+  const image = e.dataTransfer.files[0];
+  // console.log("yest",image.type);
+  const type = image.type;
+  
+  if (type == "image/png" ||type == "image/jpg" ||type == "image/jpeg" || type == "image/gif" || type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || type == "application/pdf") {
+    return upload(image);
+  } else {
+    droparea.setAttribute("class", "droparea invalid");
+    droparea.innerText = "Invalid File Format!";
+    return false;
+  }
+  });
+  
+  const upload = (image) => {
+  droparea.setAttribute("class", "droparea valid");
+  droparea.innerText = "Added " + image.name;
+  };
+  </script>
+  
