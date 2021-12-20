@@ -257,7 +257,7 @@ router.get("/adminallfiles", async (req, res) => {
   res.render("showAllFiles", { layout: "loginlayout" });
 });
 
-router.get("/showallfiles/:id", async (req, res) => {
+router.get("/showallfiles/:id", checkAuthenicated, async (req, res) => {
   try {
     const infos = await Info.find({ userid: req.params.id })
       .populate("userid", "name")
@@ -268,8 +268,8 @@ router.get("/showallfiles/:id", async (req, res) => {
         tes.url.map((test) =>
           result.push({
             url: test,
-            filename: test.split("/").pop(),
-            extname: test.split("/").pop(),
+            filename: test.split("/").pop().split(".")[0],
+            extname: test.split("/").pop().split(".")[1],
             bucketname: test.split(".")[0].split("//")[1],
             foldername: test.split("/")[3],
             username: info.userid.name,
