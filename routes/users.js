@@ -257,7 +257,7 @@ router.get("/adminallfiles", async (req, res) => {
   res.render("showAllFiles", { layout: "loginlayout" });
 });
 
-router.get("/showallfiles/:id", checkAuthenicated, async (req, res) => {
+router.get("/showallfiles/:id", async (req, res) => {
   try {
     const infos = await Info.find({ userid: req.params.id })
       .populate("userid", "name")
@@ -499,7 +499,7 @@ router.get("/uploadfilelast7days/:id", async (req, res) => {
   }
 });
 
-router.get("/usershowallfile", (req, res) => {
+router.get("/usershowallfile", checkAuthenicated, (req, res) => {
   res.render("usershowallfile", {
     layout: "layout",
     userId: req.session.passport.user,
