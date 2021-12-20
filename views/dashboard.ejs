@@ -169,21 +169,21 @@
 			document.getElementById("upload").textContent = data
 		})
 
-	fetch('/uploadimageslast7days/pdf')
+	fetch(`/uploadimageslast7days/pdf/${id}`)
 		.then(res => res.json())
 		.then(data => {
 			document.getElementById("pdfupload").textContent = data
 			document.getElementById("pdf").textContent = data
 		})
 
-		fetch('/uploadimageslast7days/png')
+		fetch(`/uploadimageslast7days/png/${id}`)
 		.then(res => res.json())
 		.then(data => {
 			document.getElementById("pngupload").textContent = data
 			document.getElementById("png").textContent = data
 		})
 
-		fetch('/uploadimageslast7days/txt')
+		fetch(`/uploadimageslast7days/txt/${id}`)
 		.then(res => res.json())
 		.then(data => {
 			document.getElementById("txtupload").textContent = data

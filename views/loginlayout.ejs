@@ -69,12 +69,12 @@
     <div class="media">
       <div class="media-left">
         <div class="avatar avatar-md avatar-circle">
-          <a href="javascript:void(0)"><img class="img-responsive" src="../assets/images/221.jpg" alt="avatar"/></a>
+          <a href="javascript:void(0)"><img class="img-responsive" src="./uploads/<%=userId.image%>" alt="avatar"/></a>
         </div><!-- .avatar -->
       </div>
       <div class="media-body">
         <div class="foldable">
-          <h5><a href="javascript:void(0)" class="username">Admin</a></h5>
+          <h5><a href="javascript:void(0)" class="username"><%=userId.name%></a></h5>
         </div>
       </div><!-- .media-body -->
     </div><!-- .media -->
@@ -110,7 +110,7 @@
 			</a>
 		  </li>
 		  <li>
-			<a href="/upload">
+			<a href="/adminupload">
 			  <i class="menu-icon zmdi zmdi-chart zmdi-hc-lg"></i>
 			  <span class="menu-text">Upload</span>
 			</a>
@@ -162,7 +162,7 @@
 							</div>
 						</div>
 						<div class="media-body">
-							<h5 class="media-heading">John Doe</h5>
+							<h5 class="media-heading"><%=userId.name%></h5>
 							<small class="media-meta">active now</small>
 						</div>
 					</div>

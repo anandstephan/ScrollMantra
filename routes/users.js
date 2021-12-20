@@ -13,6 +13,7 @@ const region = require("../config/key").region;
 const moment = require("moment");
 const multer = require("multer");
 const fs = require("fs-extra");
+var ObjectId = require("mongoose").Types.ObjectId;
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -158,47 +159,78 @@ router.get("/upload", checkAuthenicated, (req, res) => {
     if (err) {
       console.log("Error", err);
     } else {
-      res.render("upload", { buckets: data.Buckets, layout: "layout" });
+      res.render("upload", {
+        buckets: data.Buckets,
+        layout: "layout",
+        userId: req.session.passport.user,
+      });
+    }
+  });
+});
+
+router.get("/adminupload", checkAuthenicated, (req, res) => {
+  // Set Amazon Uploading Engine
+  const s3 = new AWS.S3({
+    accessKeyId: keyId,
+    secretAccessKey: secretkey,
+    region: region,
+  });
+
+  s3.listBuckets((err, data) => {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      res.render("upload", {
+        buckets: data.Buckets,
+        layout: "loginlayout",
+        userId: req.session.passport.user,
+      });
     }
   });
 });
 //upload pic
 router.get("/uploadpic", checkAuthenicated, (req, res) => {
   // Set Amazon Uploading Engine
-  res.render("uploadpic", { layout: "layout" });
+  res.render("uploadpic", {
+    layout: "layout",
+    userId: req.session.passport.user,
+  });
 });
 
 //upload a file post
-// router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
-//   let location = [];
-//   req.files.map((data) => location.push(data.location));
-//   // console.log(req.files);
-//   const id = req.session.passport.user;
-//   // console.log(location);
-//   Info.find({ userid: id._id }).then((info) => {
-//     // const locationDetail = location[location.length - 1];
-//     // console.log("locationDetail", locationDetail);
-//     const insertUrlDetail = { url: location, created_at: new Date() };
-//     const info1 = new Info({
-//       userid: id._id,
-//       dataUrl: insertUrlDetail,
-//     });
-//     if (info.length == 0) {
-//       info1.save().then((infor) => {
-//         // console.log("info", infor);
-//       });
-//     } else {
-//       Info.findOneAndUpdate(
-//         { userid: id._id },
-//         { $push: { dataUrl: insertUrlDetail } }
-//       ).exec((err, result) => {
-//         if (err) console.error(err);
-//         // console.log("result", result);
-//       });
-//     }
-//   });
-//   res.redirect("/dashboard");
-// });
+router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
+  let location = [];
+  req.files.map((data) => location.push(data.location));
+  // console.log(req.files);
+  const id = req.session.passport.user;
+  // console.log(location);
+  Info.find({ userid: id._id }).then((info) => {
+    // const locationDetail = location[location.length - 1];
+    // console.log("locationDetail", locationDetail);
+    const insertUrlDetail = { url: location, created_at: new Date() };
+    const info1 = new Info({
+      userid: id._id,
+      dataUrl: insertUrlDetail,
+    });
+    if (info.length == 0) {
+      info1.save().then((infor) => {
+        // console.log("info", infor);
+      });
+    } else {
+      Info.findOneAndUpdate(
+        { userid: id._id },
+        { $push: { dataUrl: insertUrlDetail } }
+      ).exec((err, result) => {
+        if (err) console.error(err);
+        // console.log("result", result);
+      });
+    }
+  });
+  req.flash("success_msg", "Data Uploaded successfully");
+  if (req.session.passport.user.email == "admin@gmail.com")
+    res.redirect("/adminupload");
+  else res.redirect("/upload");
+});
 
 router.post("/uploadpicdata", upload.single("img"), async (req, res) => {
   // Define a JSONobject for the image attributes for saving to database
@@ -248,7 +280,10 @@ router.get("/admin", (req, res) => {
 });
 
 router.get("/showalluser", checkAuthenicated, async (req, res) => {
-  res.render("showalluser", { layout: "loginlayout" });
+  res.render("showalluser", {
+    layout: "loginlayout",
+    userId: req.session.passport.user,
+  });
 });
 
 router.get("/showalluserstatus", async (req, res) => {
@@ -271,6 +306,7 @@ router.get("/showalluserstatus", async (req, res) => {
 router.get("/adminshowallfiles", async (req, res) => {
   try {
     const infos = await Info.find().populate("userid", "name").lean();
+    // console.log(infos);
     let result = [];
     const infos1 = infos.map((info) =>
       info.dataUrl.map((test) =>
@@ -281,7 +317,7 @@ router.get("/adminshowallfiles", async (req, res) => {
             extname: test2.split(".").pop(),
             bucketname: test2.split(".")[0].split("//")[1],
             foldername: test2.split("/")[3],
-            username: info.userid.name,
+            username: info.userid != null ? info.userid.name : "Default",
             createdAt: moment(test.created_at).format("YYYY-MM-DD"),
           })
         )
@@ -294,7 +330,10 @@ router.get("/adminshowallfiles", async (req, res) => {
 });
 
 router.get("/adminallfiles", checkAuthenicated, async (req, res) => {
-  res.render("showAllFiles", { layout: "loginlayout" });
+  res.render("showAllFiles", {
+    layout: "loginlayout",
+    userId: req.session.passport.user,
+  });
 });
 
 router.get("/showallfiles/:id", async (req, res) => {
@@ -347,18 +386,21 @@ router.get("/history", checkAuthenicated, async (req, res) => {
     let mergeDetails = [];
     for (let i = 0; i < alldetails.length; i++) {
       result.find((res) => {
-        if (res.uid.equals(alldetails[i]._id)) {
-          const newObj = {
-            name: alldetails[i].name,
-            email: alldetails[i].email,
-            allfiles: res.fname,
-            created_at: alldetails[i].createdAt,
-          };
-          mergeDetails.push(newObj);
-          return newObj;
+        if (alldetails[i] != null) {
+          if (res.uid.equals(alldetails[i]._id)) {
+            const newObj = {
+              name: alldetails[i].name,
+              email: alldetails[i].email,
+              allfiles: res.fname,
+              created_at: alldetails[i].createdAt,
+            };
+            mergeDetails.push(newObj);
+            return newObj;
+          }
         }
       });
     }
+    // console.log(mergeDetails);
     let newresult = [];
     // console.log(mergeDetails);
     mergeDetails.map((md) =>
@@ -392,7 +434,11 @@ router.get("/history", checkAuthenicated, async (req, res) => {
       )
     );
     // console.log(newresult1);
-    res.render("history", { layout: "loginlayout", results: newresult1 });
+    res.render("history", {
+      layout: "loginlayout",
+      results: newresult1,
+      userId: req.session.passport.user,
+    });
   } catch (err) {
     console.error(err);
   }
@@ -480,6 +526,7 @@ router.get("/uploaduserlast7days", async (req, res) => {
 router.get("/uploadimageslast7days/:param", async (req, res) => {
   try {
     const images = await Info.find({
+      // for time stamp
       timestamp: { $lte: new Date(), $gte: new Date(Date() - 7) },
     }).lean();
     let UrlArry = images.map((img) => img.dataUrl);
@@ -503,20 +550,26 @@ router.get("/user/:id", async (req, res) => {
   try {
     const infos = await Info.find({ userid: req.params.id }).lean();
     let result = [];
-    // console.log(infos);
     infos.map((info) =>
-      info.dataUrl.map((inf) =>
-        result.push({
-          url: inf.url,
-          name: inf.url.split("/").pop(),
-          extname: inf.url.split(".").pop(),
-          bucketname: inf.url.split(".")[0].split("//")[1],
-          foldername: inf.url.split("/")[3],
-          created_at: moment(inf.created_at).format("YYYY-MM-DD"),
-        })
+      info.dataUrl.map((test) =>
+        test.url.map((link) =>
+          result.push({
+            url: link,
+            name: link.split("/").pop(),
+            extname: link.split(".").pop(),
+            bucketname: link.split(".")[0].split("//")[1],
+            foldername: link.split("/")[3],
+            created_at: moment(test.created_at).format("YYYY-MM-DD"),
+          })
+        )
       )
     );
-    res.render("showSingleUser", { results: result, layout: "loginlayout" });
+    // console.log(result);
+    res.render("showSingleUser", {
+      results: result,
+      layout: "loginlayout",
+      userId: req.session.passport.user,
+    });
   } catch (error) {
     console.log(error);
   }

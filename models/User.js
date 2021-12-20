@@ -20,6 +20,7 @@ const UserSchema = new mongoose.Schema(
     },
     image: {
       type: String,
+      default: "default.png",
     },
   },
   { timestamps: true }
