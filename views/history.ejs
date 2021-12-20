@@ -34,20 +34,21 @@
 										  <th>Type</th>
 										  <th>Bucket Name</th>
 										  <th>Folder Name</th>
-										  <th>URL</th>
+										  <th>Created_At</th>_
+										  <th>Download</th>
 										</tr>
 								  </thead>
 								  <tbody id="userlist">
                                     <% results.forEach(result => { %>
                                         <tr>
 										<td><%=result.name%></td>
-										<td><%=result.email[0]%></td>
-                                        <td><%=result.fname[0]%></td>          
-                                        <td><%=result.extname[0]%></td>
-                                        <td><%=result.bucketname[0]%></td>
-                                        <td><%=result.foldername[0]%></td>
+										<td><%=result.email%></td>
+                                        <td><%=result.filename%></td>          
+                                        <td><%=result.extname%></td>
+                                        <td><%=result.bucketname%></td>
+                                        <td><%=result.foldername%></td>
                                         <td><%=result.created_at%></td>
-										<td><%=result.url%></td>
+										<td><a href="<%=result.url%>" class="btn btn-primary">Download</a></td>
 									</tr>
                                         <% });%>
 								  </tbody>

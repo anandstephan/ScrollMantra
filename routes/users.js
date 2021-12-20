@@ -312,17 +312,15 @@ router.get("/history", async (req, res) => {
             name: alldetails[i].name,
             email: alldetails[i].email,
             allfiles: res.fname,
+            created_at: alldetails[i].createdAt,
           };
           mergeDetails.push(newObj);
           return newObj;
         }
       });
     }
-    // console.log(mergeDetails);
-    // mergeDetails.map((md) =>
-    //   md.allfiles.map((allfile) => console.log(allfile))
-    // );
     let newresult = [];
+    // console.log(mergeDetails);
     mergeDetails.map((md) =>
       md.allfiles.map((allfile) =>
         newresult.push({
@@ -333,19 +331,28 @@ router.get("/history", async (req, res) => {
           bucketname: allfile.map((af) => af.split(".")[0].split("//")[1]),
           foldername: allfile.map((af) => af.split("/")[3]),
           url: allfile,
+          created_at: md.created_at,
         })
       )
     );
-    console.log(newresult);
-    // let newresult1 = [];
-    // newresult.map((newres) =>
-    //   newresult1.push({
-    //     name: newres.name,
-    //     fname: newres.fname.map((newres1) => newres1),
-    //   })
-    // );
+    // console.log(newresult);
+    let newresult1 = [];
+    newresult.map((newres) =>
+      newres.url.map((newurl) =>
+        newresult1.push({
+          url: newurl,
+          name: newres.name,
+          email: newres.email,
+          bucketname: newurl.split(".")[0].split("//")[1],
+          foldername: newurl.split("/")[3],
+          filename: newurl.split("/").pop().split(".")[0],
+          extname: newurl.split(".").pop(),
+          created_at: moment(newres.created_at).format("YYYY-MM-DD"),
+        })
+      )
+    );
     // console.log(newresult1);
-    res.render("history", { layout: "loginlayout", results: newresult });
+    res.render("history", { layout: "loginlayout", results: newresult1 });
   } catch (err) {
     console.error(err);
   }
