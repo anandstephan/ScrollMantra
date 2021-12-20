@@ -1,0 +1,118 @@
+
+<!-- APP MAIN ==========-->
+<main id="app-main" class="app-main">
+    <div class="wrap">
+      <section class="app-content">
+          <div class="row">
+              <div class="col-md-12">
+                  <div class="widget">
+                      <header class="widget-header">
+                          <h4 class="widget-title">Upload Pic</h4>
+                      </header><!-- .widget-header -->
+                      <hr class="widget-separator">
+                      <div class="widget-body">
+                        <form action="../api/dropzone" class="dropzone dz-clickable" data-plugin="dropzone" data-options="{ url: '../api/dropzone'}">
+                    <div class="dz-message">
+                        <h3 class="m-h-lg">Drop files here or click to upload.</h3>
+                        <p class="m-b-lg text-muted">(Please choose a file.)</p>
+                    </div>
+                    <input class="btn btn-primary btn-block btn-lg" type="submit"  > 
+                          </form>
+                      </div><!-- .widget-body -->
+                  </div><!-- .widget -->
+              </div><!-- END column -->
+          </div><!-- .row -->
+      </section><!-- #dash-content -->
+  </div><!-- .wrap -->
+    <!-- APP FOOTER -->
+    <div class="wrap p-t-0">
+      <footer class="app-footer">
+        <div class="clearfix">
+          <div class="copyright pull-left"> &copy; 2014-2021 | All Rights Reserved | Scroll Mantra</div>
+        </div>
+      </footer>
+    </div>
+    <!-- /#app-footer -->
+  </main>
+  <!--========== END app main -->
+  
+  <script>
+      
+    function selectChange(e){ 
+  
+      var xmlhttp = new XMLHttpRequest();
+      
+      // document.getElementById("folder").innerHTML = ''
+  xmlhttp.onreadystatechange = function() {
+    
+    if (xmlhttp.readyState == 4&& xmlhttp.status == 200) {   // XMLHttpRequest.DONE == 4
+    
+       if (xmlhttp.status == 200) {
+        //  console.log("test",xmlhttp.responseText);
+  
+         let result = JSON.parse(xmlhttp.responseText)
+    
+         let result1 = [];
+         for(let i=0;i<result.length;i++)
+         result1.push(result[i]);
+         console.log(result1)
+        let select = document.getElementById("folder")
+        if(select.options.length !=0) select.innerHTML = ''
+         result1.forEach(name =>{
+           
+          let opt = document.createElement('option');
+          opt.value = name;
+          opt.innerHTML = name;
+          select.appendChild(opt);
+            
+  
+         })
+          //  document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+       }
+       else if (xmlhttp.status == 400) {
+          alert('There was an error 400');
+       }
+       else {
+           alert('something else other than 200 was returned');
+       }
+    }
+  };
+  
+  xmlhttp.open("GET", `ajaxupload/${e.value}`, true);
+  xmlhttp.send();
+  
+    }
+  
+    const droparea = document.querySelector(".droparea");
+  
+  droparea.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  droparea.classList.add("hover");
+  });
+  
+  droparea.addEventListener("dragleave", () => {
+  droparea.classList.remove("hover");
+  });
+  
+  droparea.addEventListener("drop", (e) => {
+  e.preventDefault();
+  
+  const image = e.dataTransfer.files[0];
+  // console.log("yest",image.type);
+  const type = image.type;
+  
+  if (type == "image/png" ||type == "image/jpg" ||type == "image/jpeg" || type == "image/gif" || type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || type == "application/pdf") {
+    return upload(image);
+  } else {
+    droparea.setAttribute("class", "droparea invalid");
+    droparea.innerText = "Invalid File Format!";
+    return false;
+  }
+  });
+  
+  const upload = (image) => {
+  droparea.setAttribute("class", "droparea valid");
+  droparea.innerText = "Added " + image.name;
+  };
+  </script>
+  

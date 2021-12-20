@@ -56,17 +56,11 @@ router.post("/login", (req, res, next) => {
   if (errors.length > 0) {
     res.render("login", { errors, email, password, layout: "singlelayout" });
   } else {
-    if (email == "admin@gmail.com" && password == "1234567890") {
-      // console.log("TEST");
-      // req.session.passport.user = email;
-      res.redirect("/admin");
-    } else {
-      passport.authenticate("local", {
-        successRedirect: "/dashboard",
-        failureRedirect: "/",
-        failureFlash: true,
-      })(req, res, next);
-    }
+    passport.authenticate("local", {
+      successRedirect: "/dashboard",
+      failureRedirect: "/",
+      failureFlash: true,
+    })(req, res, next);
   }
 });
 
@@ -154,6 +148,23 @@ router.get("/upload", checkAuthenicated, (req, res) => {
     }
   });
 });
+//upload pic
+router.get("/uploadpic", checkAuthenicated, (req, res) => {
+  // Set Amazon Uploading Engine
+  const s3 = new AWS.S3({
+    accessKeyId: keyId,
+    secretAccessKey: secretkey,
+    region: region,
+  });
+
+  s3.listBuckets((err, data) => {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      res.render("uploadpic", { buckets: data.Buckets, layout: "layout" });
+    }
+  });
+});
 
 //upload a file post
 router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
@@ -189,11 +200,17 @@ router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
 
 //Dashboard Handler
 router.get("/dashboard", checkAuthenicated, (req, res) => {
-  // console.log(req.session.passport.user);
-  res.render("dashboard", {
-    layout: "layout",
-    userId: req.session.passport.user,
-  });
+  if (req.session.passport.user.email == "admin@gmail.com") {
+    res.render("admindashboard", {
+      layout: "loginlayout",
+      userId: req.session.passport.user,
+    });
+  } else {
+    res.render("dashboard", {
+      layout: "layout",
+      userId: req.session.passport.user,
+    });
+  }
 });
 
 //Logout Handler
@@ -207,7 +224,7 @@ router.get("/admin", (req, res) => {
   res.render("admindashboard", { layout: "loginlayout" });
 });
 
-router.get("/showalluser", async (req, res) => {
+router.get("/showalluser", checkAuthenicated, async (req, res) => {
   res.render("showalluser", { layout: "loginlayout" });
 });
 
@@ -253,7 +270,7 @@ router.get("/adminshowallfiles", async (req, res) => {
   }
 });
 
-router.get("/adminallfiles", async (req, res) => {
+router.get("/adminallfiles", checkAuthenicated, async (req, res) => {
   res.render("showAllFiles", { layout: "loginlayout" });
 });
 
@@ -284,7 +301,7 @@ router.get("/showallfiles/:id", async (req, res) => {
   }
 });
 
-router.get("/history", async (req, res) => {
+router.get("/history", checkAuthenicated, async (req, res) => {
   try {
     const info = await Info.find().lean();
     // console.log(info);
@@ -358,7 +375,7 @@ router.get("/history", async (req, res) => {
   }
 });
 
-router.get("/adduser", (req, res) => {
+router.get("/adduser", checkAuthenicated, (req, res) => {
   res.render("adduser", { layout: "singlelayout" });
 });
 
