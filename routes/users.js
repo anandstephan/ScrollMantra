@@ -508,23 +508,30 @@ router.get("/usershowallfile", (req, res) => {
 
 router.get("/search/:filename", async (req, res) => {
   try {
-    const images = await Info.find().lean();
-    // console.log(images);
-    let UrlArry = images.map((img) => img.dataUrl);
-    // console.log(UrlArry);
-    let urlArry1 = UrlArry.map((url) => url);
-    // console.log(urlArry1);
-    let urlArry2 = [];
-    // let urlArry3 = [];
-    urlArry1.map((url) => url.map((url1) => urlArry2.push(url1.url)));
+    const filenames = await Info.find().populate("userid", "name email").lean();
+    // console.log(filenames);
+    let result = [];
+    filenames.map((filename) =>
+      filename.dataUrl.map((file) =>
+        file.url.map((txt) => {
+          if (
+            txt.split("/").pop().split(".")[0].search(req.params.filename) != -1
+          ) {
+            result.push({
+              username: filename.userid.name,
+              createdAt: moment(file.created_at).format("YYYY-MM-DD"),
+              filename: txt.split("/").pop().split(".")[0],
+              extname: txt.split(".").pop(),
+              foldername: txt.split("/")[3],
+              bucketname: txt.split(".")[0].split("//")[1],
+              test2: txt,
+            });
+          }
+        })
+      )
+    );
 
-    // let count = 0;
-    // urlArry2.map((url) => url.map((url1) => urlArry3.push(url1)));
-    // // console.log(urlArry3);
-    // urlArry3.map((url) => (url.search(req.params.param) != -1 ? count++ : ""));
-    // // console.log(count);
-    // res.status(200).json(count);
-    // res.status(200).json(image);
+    res.status(200).json(result);
   } catch (error) {
     console.log(error);
   }
