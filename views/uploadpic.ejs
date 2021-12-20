@@ -11,10 +11,23 @@
                       </header><!-- .widget-header -->
                       <hr class="widget-separator">
                       <div class="widget-body">
-                        <form action="../api/dropzone" class="dropzone dz-clickable" data-plugin="dropzone" data-options="{ url: '../api/dropzone'}">
-                    <div class="dz-message">
-                        <h3 class="m-h-lg">Drop files here or click to upload.</h3>
-                        <p class="m-b-lg text-muted">(Please choose a file.)</p>
+                        <form action="/uploadpicdata"  method="post" enctype="multipart/form-data"">
+                          <div class="form-group">
+                            <label for="exampleInputEmail1">Chose Bucket</label> 
+                            <select class="form-control" id="exampleSelect1"  name="bucket" > 
+                 <option class="form-control" value="anandbro" selected="selected" ></option>          
+                             </select> 
+                           </div> 
+                           <div class="form-group"> 
+                             <label for="exampleInputPassword1">Folder Name</label> 
+                             <select class="form-control" id="folder"  name="folder" > 
+                              <option class="form-control" value="test/" selected="selected" ></option>
+                             </select>
+                         
+                            </div> 
+                          <div class="dz-message">
+                            <input class="form-control" type="file" id="formFile" name="img" >
+                  
                     </div>
                     <input class="btn btn-primary btn-block btn-lg" type="submit"  > 
                           </form>

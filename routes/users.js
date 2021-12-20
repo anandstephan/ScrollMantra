@@ -11,6 +11,20 @@ const keyId = require("../config/key").accessKeyId;
 const secretkey = require("../config/key").secretAccessKey;
 const region = require("../config/key").region;
 const moment = require("moment");
+const multer = require("multer");
+const fs = require("fs-extra");
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./views/uploads/");
+  },
+  filename: function (req, file, cb) {
+    let extArray = file.mimetype.split("/");
+    let extension = extArray[extArray.length - 1];
+    cb(null, file.fieldname + "-" + Date.now() + "." + extension);
+  },
+});
+var upload = multer({ storage: storage });
 
 function sendMail(to, msg) {
   const transporter = nodemailer.createTransport({
@@ -151,51 +165,60 @@ router.get("/upload", checkAuthenicated, (req, res) => {
 //upload pic
 router.get("/uploadpic", checkAuthenicated, (req, res) => {
   // Set Amazon Uploading Engine
-  const s3 = new AWS.S3({
-    accessKeyId: keyId,
-    secretAccessKey: secretkey,
-    region: region,
-  });
-
-  s3.listBuckets((err, data) => {
-    if (err) {
-      console.log("Error", err);
-    } else {
-      res.render("uploadpic", { buckets: data.Buckets, layout: "layout" });
-    }
-  });
+  res.render("uploadpic", { layout: "layout" });
 });
 
 //upload a file post
-router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
-  let location = [];
-  req.files.map((data) => location.push(data.location));
-  // console.log(req.files);
-  const id = req.session.passport.user;
-  // console.log(location);
-  Info.find({ userid: id._id }).then((info) => {
-    // const locationDetail = location[location.length - 1];
-    // console.log("locationDetail", locationDetail);
-    const insertUrlDetail = { url: location, created_at: new Date() };
-    const info1 = new Info({
-      userid: id._id,
-      dataUrl: insertUrlDetail,
-    });
-    if (info.length == 0) {
-      info1.save().then((infor) => {
-        // console.log("info", infor);
-      });
-    } else {
-      Info.findOneAndUpdate(
-        { userid: id._id },
-        { $push: { dataUrl: insertUrlDetail } }
-      ).exec((err, result) => {
-        if (err) console.error(err);
-        // console.log("result", result);
-      });
-    }
-  });
-  res.redirect("/dashboard");
+// router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
+//   let location = [];
+//   req.files.map((data) => location.push(data.location));
+//   // console.log(req.files);
+//   const id = req.session.passport.user;
+//   // console.log(location);
+//   Info.find({ userid: id._id }).then((info) => {
+//     // const locationDetail = location[location.length - 1];
+//     // console.log("locationDetail", locationDetail);
+//     const insertUrlDetail = { url: location, created_at: new Date() };
+//     const info1 = new Info({
+//       userid: id._id,
+//       dataUrl: insertUrlDetail,
+//     });
+//     if (info.length == 0) {
+//       info1.save().then((infor) => {
+//         // console.log("info", infor);
+//       });
+//     } else {
+//       Info.findOneAndUpdate(
+//         { userid: id._id },
+//         { $push: { dataUrl: insertUrlDetail } }
+//       ).exec((err, result) => {
+//         if (err) console.error(err);
+//         // console.log("result", result);
+//       });
+//     }
+//   });
+//   res.redirect("/dashboard");
+// });
+
+router.post("/uploadpicdata", upload.single("img"), async (req, res) => {
+  // Define a JSONobject for the image attributes for saving to database
+  // console.log(req.file.filename);
+  const updateuser = req.session.passport.user;
+  updateuser.image = req.file.filename;
+  // console.log(updateuser);
+  try {
+    let test = await User.findOneAndUpdate(
+      {
+        email: req.session.passport.user.email,
+      },
+      { $set: { image: req.file.filename } },
+      { new: true }
+    );
+    // console.log(test);
+    res.redirect("/dashboard");
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 //Dashboard Handler
