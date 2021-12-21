@@ -303,7 +303,8 @@ router.post("/uploadpicdata", upload.single("img"), async (req, res) => {
 
 //Dashboard Handler
 router.get("/dashboard", checkAuthenicated, (req, res) => {
-  if (req.session.passport.user.email.userType == "admin") {
+  console.log(req.session.passport.user.email);
+  if (req.session.passport.user.userType == "admin") {
     res.render("admindashboard", {
       layout: "loginlayout",
       userId: req.session.passport.user,
@@ -345,7 +346,7 @@ router.get("/showalluserstatus", async (req, res) => {
     let info = [];
     users.map(
       (user) =>
-        user.email != "admin@gmail.com" &&
+        user.userType != "admin" &&
         info.push({ id: user._id, name: user.name, email: user.email })
     );
     res.status(200).json(info);
