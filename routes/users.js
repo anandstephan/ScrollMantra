@@ -303,7 +303,7 @@ router.post("/uploadpicdata", upload.single("img"), async (req, res) => {
 
 //Dashboard Handler
 router.get("/dashboard", checkAuthenicated, (req, res) => {
-  if (req.session.passport.user.email == "admin@gmail.com") {
+  if (req.session.passport.user.email.userType == "admin") {
     res.render("admindashboard", {
       layout: "loginlayout",
       userId: req.session.passport.user,
