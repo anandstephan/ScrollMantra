@@ -550,7 +550,7 @@ router.get("/history", checkAuthenicated, async (req, res) => {
   }
 });
 
-router.get("/adduser", checkAuthenicated, (req, res) => {
+router.get("/adduser", (req, res) => {
   res.render("adduser", { layout: "singlelayout" });
 });
 
@@ -643,7 +643,10 @@ router.get("/uploadimageslast7days/:param", async (req, res) => {
     let count = 0;
     urlArry2.map((url) => url.map((url1) => urlArry3.push(url1)));
     // console.log(urlArry3);
-    urlArry3.map((url) => (url.search(req.params.param) != -1 ? count++ : ""));
+    let searchparam = req.params.param;
+    urlArry3.map((url) =>
+      url.toLowerCase().indexOf(searchparam.toLowerCase()) != -1 ? count++ : ""
+    );
     // console.log(count);
     res.status(200).json(count);
     // res.status(200).json(image);
