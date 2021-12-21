@@ -13,6 +13,8 @@ const region = require("../config/key").region;
 const moment = require("moment");
 const multer = require("multer");
 const fs = require("fs-extra");
+const Track = require("../models/Track");
+
 var ObjectId = require("mongoose").Types.ObjectId;
 
 var storage = multer.diskStorage({
@@ -99,7 +101,8 @@ router.post("/forgotpassword", async (req, res) => {
         runValidators: true,
       }
     );
-    res.redirect("/showalluser");
+    req.flash("success_msg", "You are password has been changed");
+    res.redirect("/");
   } catch (error) {
     console.log(error);
   }
@@ -132,7 +135,7 @@ router.get("/ajaxupload/:param", (req, res) => {
 });
 
 router.get("/ajaxupload2/:param", (req, res) => {
-  let bucketname = "anandbro";
+  let bucketname = req.params.param;
 
   const s3 = new AWS.S3({
     accessKeyId: keyId,
@@ -147,15 +150,58 @@ router.get("/ajaxupload2/:param", (req, res) => {
       })
       .promise()
       .then((data) => {
-        console.log(data);
         let result = [];
+        let result1 = [];
         data.Contents.forEach(
           (content) => content.Size == 0 && result.push(content.Key)
         );
-        res.status(200).json(result);
+        data.Contents.forEach(
+          (content) => content.Size != 0 && result1.push(content.Key)
+        );
+        res.status(200).json({ result, result1 });
       });
   }
   test2();
+});
+
+router.post("/deletefile", async (req, res) => {
+  const s3 = new AWS.S3({
+    accessKeyId: keyId,
+    secretAccessKey: secretkey,
+    region: region,
+  });
+  let bucketname = req.body.bucketname;
+  let key = req.body.folder + req.body.filename;
+  const params = {
+    Bucket: bucketname,
+    Key: key, //if any sub folder-> path/of/the/folder.ext
+  };
+  try {
+    await s3.headObject(params).promise();
+    // console.log("File Found in S3");
+    try {
+      await s3.deleteObject(params).promise();
+      // console.log("file deleted Successfully");
+      try {
+        const Track1 = new Track({
+          filename: req.body.filename,
+          bucketname: req.body.bucketname,
+          foldername: req.body.folder,
+          userid: req.session.passport.user,
+        });
+        let saveUser = await Track1.save();
+        // console.log(saveUser);
+      } catch (err) {
+        console.log("save error", err);
+      }
+    } catch (err) {
+      console.log("ERROR in file Deleting : " + JSON.stringify(err));
+    }
+  } catch (err) {
+    req.flash("error_msg", "File Not Found");
+    // console.log("File not Found ERROR : " + err.code);
+  }
+  return res.redirect("/admindelete");
 });
 
 router.get("/test", (req, res) => {
@@ -245,6 +291,14 @@ router.get("/uploadpic", checkAuthenicated, (req, res) => {
   });
 });
 
+router.get("/adminuploadpic", checkAuthenicated, (req, res) => {
+  // Set Amazon Uploading Engine
+  res.render("uploadpic", {
+    layout: "loginlayout",
+    userId: req.session.passport.user,
+  });
+});
+
 //upload a file post
 router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
   let location = [];
@@ -303,7 +357,7 @@ router.post("/uploadpicdata", upload.single("img"), async (req, res) => {
 
 //Dashboard Handler
 router.get("/dashboard", checkAuthenicated, (req, res) => {
-  console.log(req.session.passport.user.email);
+  // console.log(req.session.passport.user.email);
   if (req.session.passport.user.userType == "admin") {
     res.render("admindashboard", {
       layout: "loginlayout",
@@ -324,7 +378,7 @@ router.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
-router.get("/admin", (req, res) => {
+router.get("/admin", checkAuthenicated, (req, res) => {
   res.render("admindashboard", {
     layout: "loginlayout",
     userId: req.session.passport.user,

@@ -25,7 +25,7 @@
                   </div> 
                   <div class="form-group"> 
                     <label for="exampleInputPassword1">Folder Name</label> 
-                    <select class="form-control" id="folder" onchange="selectChange(this)" name="folder" > 
+                    <select class="form-control" id="folder"  name="folder" > 
                     </select>
                 
                    </div> 
@@ -100,35 +100,5 @@ xmlhttp.send();
 
   }
 
-  const droparea = document.querySelector(".droparea");
 
-droparea.addEventListener("dragover", (e) => {
-e.preventDefault();
-droparea.classList.add("hover");
-});
-
-droparea.addEventListener("dragleave", () => {
-droparea.classList.remove("hover");
-});
-
-droparea.addEventListener("drop", (e) => {
-e.preventDefault();
-
-const image = e.dataTransfer.files[0];
-// console.log("yest",image.type);
-const type = image.type;
-
-if (type == "image/png" ||type == "image/jpg" ||type == "image/jpeg" || type == "image/gif" || type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || type == "application/pdf") {
-  return upload(image);
-} else {
-  droparea.setAttribute("class", "droparea invalid");
-  droparea.innerText = "Invalid File Format!";
-  return false;
-}
-});
-
-const upload = (image) => {
-droparea.setAttribute("class", "droparea valid");
-droparea.innerText = "Added " + image.name;
-};
 </script>
