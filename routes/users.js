@@ -275,7 +275,7 @@ router.post("/uploaddata", uploads3.array("img", 10), (req, res) => {
     }
   });
   req.flash("success_msg", "Data Uploaded successfully");
-  if (req.session.passport.user.email == "admin@gmail.com")
+  if (req.session.passport.user.userType == "admin")
     res.redirect("/adminupload");
   else res.redirect("/upload");
 });
