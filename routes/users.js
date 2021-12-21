@@ -82,8 +82,11 @@ router.post("/login", (req, res, next) => {
 });
 
 //ForgotPassword Handler
-router.get("/forgotpassword", (req, res) => {
-  res.render("forgotpassword", { layout: "singlelayout" });
+router.get("/forgotpassword/:emailid", (req, res) => {
+  res.render("forgotpassword", {
+    layout: "singlelayout",
+    emailId: req.params.emailid,
+  });
 });
 
 router.post("/forgotpassword", async (req, res) => {
@@ -102,7 +105,7 @@ router.post("/forgotpassword", async (req, res) => {
       }
     );
     req.flash("success_msg", "password has been changed");
-    res.redirect("/");
+    res.redirect("/showalluser");
   } catch (error) {
     console.log(error);
   }
@@ -398,10 +401,8 @@ router.get("/showalluserstatus", async (req, res) => {
       timestamp: { $lte: new Date(), $gte: new Date(Date() - 7) },
     }).lean();
     let info = [];
-    users.map(
-      (user) =>
-        user.userType != "admin" &&
-        info.push({ id: user._id, name: user.name, email: user.email })
+    users.map((user) =>
+      info.push({ id: user._id, name: user.name, email: user.email })
     );
     res.status(200).json(info);
   } catch (err) {
@@ -471,18 +472,20 @@ router.get("/showallfiles/:id", async (req, res) => {
 
 router.get("/history", checkAuthenicated, async (req, res) => {
   try {
-    const info = await Info.find().lean();
+    const info = await Info.find().populate("userid", "status").lean();
     // console.log(info);
     let result = [];
     info.map((data) => {
       // console.log(data);
-      result.push({
-        uid: data.userid,
-        fname: data.dataUrl.map((url1) => url1.url),
-        created_at: data.dataUrl.map((url) =>
-          moment(url.created_at).format("YYYY-MM-DD")
-        ),
-      });
+      if (data.userid.status == false) {
+        result.push({
+          uid: data.userid,
+          fname: data.dataUrl.map((url1) => url1.url),
+          created_at: data.dataUrl.map((url) =>
+            moment(url.created_at).format("YYYY-MM-DD")
+          ),
+        });
+      }
     });
     // console.log(result);
     let alldetails = await Promise.all(
@@ -493,7 +496,7 @@ router.get("/history", checkAuthenicated, async (req, res) => {
     for (let i = 0; i < alldetails.length; i++) {
       result.find((res) => {
         if (alldetails[i] != null) {
-          if (res.uid.equals(alldetails[i]._id)) {
+          if (res.uid._id.equals(alldetails[i]._id)) {
             const newObj = {
               name: alldetails[i].name,
               email: alldetails[i].email,
