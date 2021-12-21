@@ -101,7 +101,7 @@ router.post("/forgotpassword", async (req, res) => {
         runValidators: true,
       }
     );
-    req.flash("success_msg", "You are password has been changed");
+    req.flash("success_msg", "password has been changed");
     res.redirect("/");
   } catch (error) {
     console.log(error);
@@ -683,8 +683,15 @@ router.get("/user/:id", async (req, res) => {
 
 router.get("/deleteuser/:id", async (req, res) => {
   try {
-    const infos = await Info.findOneAndRemove({ userid: req.params.id });
-    const users = await User.findByIdAndRemove(req.params.id);
+    // const infos = await Info.findOneAndRemove({ userid: req.params.id });
+    const users = await User.findOneAndUpdate(
+      { _id: req.params.id },
+      { status: true },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     res.redirect("/showalluser");
   } catch (error) {
     console.log(error);

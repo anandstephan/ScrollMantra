@@ -22,6 +22,10 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "default.png",
     },
+    status: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
