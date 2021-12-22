@@ -173,8 +173,9 @@ router.post("/deletefile", async (req, res) => {
     secretAccessKey: secretkey,
     region: region,
   });
+
   let bucketname = req.body.bucketname;
-  let key = req.body.folder + req.body.filename;
+  let key = req.body.folder + "/" + req.body.filename;
   const params = {
     Bucket: bucketname,
     Key: key, //if any sub folder-> path/of/the/folder.ext
@@ -204,7 +205,8 @@ router.post("/deletefile", async (req, res) => {
     req.flash("error_msg", "File Not Found");
     // console.log("File not Found ERROR : " + err.code);
   }
-  return res.redirect("/admindelete");
+  // req.flash("success_msg", "File has been deleted successfully");
+  return res.status(200).json({ msg: "File has been Deleted" });
 });
 
 router.get("/test", (req, res) => {

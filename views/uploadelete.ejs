@@ -29,14 +29,20 @@
                       </select>
                   
                      </div> 
-                    <div class="form-group">
-                      <label for="exampleInputPassword1">File Name</label> 
-                      <select class="form-control" id="filename" name="filename" > 
-                      </select>
-                  
-                    </div> 
-                    <input class="btn btn-primary btn-block btn-lg" type="submit"  > 
-                          </form>
+  </form>
+                          <hr class="widget-separator">
+                          <div class="table-responsive">							
+                            <table class="table no-cellborder">
+                              <thead>
+                                <tr>
+                                 <th>File Name</th>
+                                  <th>Download</th>
+                                </tr>
+                              </thead>
+                              <tbody id="userlist">
+                              </tbody>
+                            </table>
+                          </div>
                       </div><!-- .widget-body -->
                   </div><!-- .widget -->
               </div><!-- END column -->
@@ -57,35 +63,29 @@
   
   <script>
     let fullresult = [];    
+    let bucketname;
     function selectChange(e){ 
-  
+      bucketname = e.value
+      // console.log(bucketname)
       var xmlhttp = new XMLHttpRequest();
-      
-      // document.getElementById("folder").innerHTML = ''
-  xmlhttp.onreadystatechange = function() {
-    
-    if (xmlhttp.readyState == 4&& xmlhttp.status == 200) {   // XMLHttpRequest.DONE == 4
-    
+      xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4&& xmlhttp.status == 200) {   // XMLHttpRequest.DONE == 4
        if (xmlhttp.status == 200) {
-        //  console.log("test",xmlhttp.responseText);
-  
          let result = JSON.parse(xmlhttp.responseText)
         // console.log(result)
         fullresult = result.result1;
          let result1 = [];
          for(let i=0;i<result.result.length;i++)
          result1.push(result.result[i]);
-        //  console.log(result1)
         let select = document.getElementById("folder")
+        let opt1 = document.createElement("option")
+        select.appendChild(opt1)
         if(select.options.length !=0) select.innerHTML = ''
          result1.forEach(name =>{
-           
           let opt = document.createElement('option');
           opt.value = name;
           opt.innerHTML = name;
           select.appendChild(opt);
-            
-  
          })
           //  document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
        }
@@ -103,27 +103,56 @@
   
     }
     function selectChange1(e){
-      console.log(e.value)
-      // console.log(fullresult)
       let lastresult=[];
-      fullresult.map( result => {if(result.search(e.value)!=-1) {
-        lastresult.push(result.split("/").pop())
-      }})
-      // console.log(lastresult) 
-      if(lastresult.length!=0){
-      let select = document.getElementById("filename")
-        if(select.options.length !=0) select.innerHTML = ''
-         lastresult.forEach(name =>{
-           
-          let opt = document.createElement('option');
-          opt.value = name;
-          opt.innerHTML = name;
-          select.appendChild(opt);
-            
-  
-         })
+      console.log("test");
+      while(lastresult.length){
+        lastresult.pop()
+      }
+      fullresult.map( result => {
+        let foldername = result.split('/')[0].toLowerCase()
+        let selectedfoldername = e.value.split('/')[0].toLowerCase()
+          if(foldername === selectedfoldername){
+          lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${foldername}/${result.split('/')[1]}`,filename:result.split('/')[1]})
         }
+    })
+    
+
+        const list = document.querySelector("#userlist");
+      list.innerHTML =''
+		lastresult.map(res =>{
+			const row = document.createElement('tr');
+        row.innerHTML = `
+                    <td>${res.filename}</td>
+					<td><button type="button" value="${res.url}" class="btn btn-danger delete">Delete File</button></td>
+                    `;
+        list.appendChild(row);
+		})
+  
+  }
+
+  document.getElementById("userlist").addEventListener("click",(e)=>{
+    if(e.target.classList.contains("delete")){
+      let url = e.target.value
+      let fname = url.split("/").pop()
+      let foldername = url.split("/")[3]
+      let bucketname = url.split(".")[0].split("//")[1]
+      console.log(fname,foldername,bucketname)
+      fetch("/deletefile",{
+        method: "POST",
+        headers: {
+      'Content-Type': 'application/json; charset=UTF-8'
+    },
+    body:JSON.stringify({bucketname,folder:foldername,filename:fname})
+      })
+      .then(response => response.json())
+      .then(data =>{
+        if(data.msg === "File has been Deleted"){
+          alert("File has been Deleted")
+          window.location.reload();
+        }
+      })
     }
+  })
   
   </script>
   

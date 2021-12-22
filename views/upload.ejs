@@ -16,7 +16,7 @@
               <form method="post" enctype="multipart/form-data" action="/uploaddata" >
                 <div class="form-group">
                    <label for="exampleInputEmail1">Chose Bucket</label> 
-                   <select class="form-control" id="exampleSelect1" onchange="selectChange(this)" name="bucket" > 
+                   <select class="form-control"  onchange="selectChange(this)" name="bucket" id="bucket"> 
 
                     <% buckets.forEach(user => { %>
                       <option class="form-control" value=<%= user.Name %> selected="selected"><%= user.Name %></option>
@@ -76,14 +76,13 @@ xmlhttp.onreadystatechange = function() {
       let select = document.getElementById("folder")
       if(select.options.length !=0) select.innerHTML = ''
        result1.forEach(name =>{
-         
         let opt = document.createElement('option');
         opt.value = name;
         opt.innerHTML = name;
         select.appendChild(opt);
-          
-
        })
+       
+       console.log(document.getElementById("folder")[0])
         //  document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
      }
      else if (xmlhttp.status == 400) {
@@ -100,5 +99,11 @@ xmlhttp.send();
 
   }
 
+
+  document.addEventListener("DOMContentLoaded",(e)=>{
+   setTimeout(function(){
+    // console.log(document.getElementById("bucket")[])
+   },1000)
+  })
 
 </script>
