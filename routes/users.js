@@ -42,7 +42,8 @@ function sendMail(to, msg) {
     from: "anand9412868527@gmail.com",
     to: to,
     subject: "Password",
-    text: `Your Password is ${msg}`,
+    text: `Welcome to ScrollMantra AWS Interface.
+           username -: ${to} and password -: ${msg}`,
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
@@ -473,86 +474,107 @@ router.get("/showallfiles/:id", async (req, res) => {
   }
 });
 
-router.get("/history", checkAuthenicated, async (req, res) => {
-  try {
-    const info = await Info.find().populate("userid", "status").lean();
-    // console.log(info);
-    let result = [];
-    info.map((data) => {
-      // console.log(data);
+router.get("/showalls3files", checkAuthenicated, async (req, res) => {
+  // try {
+  //   const info = await Info.find().populate("userid", "status").lean();
+  //   // console.log(info);
+  //   let result = [];
+  //   info.map((data) => {
+  //     // console.log(data);
 
-      result.push({
-        uid: data.userid,
-        fname: data.dataUrl.map((url1) => url1.url),
-        created_at: data.dataUrl.map((url) =>
-          moment(url.created_at).format("YYYY-MM-DD")
-        ),
-      });
-    });
-    // console.log(result);
-    let alldetails = await Promise.all(
-      result.map((newres) => User.findById(newres.uid))
-    );
-    // console.log(alldetails);
-    let mergeDetails = [];
-    for (let i = 0; i < alldetails.length; i++) {
-      result.find((res) => {
-        if (alldetails[i] != null) {
-          if (res.uid._id.equals(alldetails[i]._id)) {
-            const newObj = {
-              name: alldetails[i].name,
-              email: alldetails[i].email,
-              allfiles: res.fname,
-              created_at: alldetails[i].createdAt,
-            };
-            mergeDetails.push(newObj);
-            return newObj;
-          }
-        }
+  //     result.push({
+  //       uid: data.userid,
+  //       fname: data.dataUrl.map((url1) => url1.url),
+  //       created_at: data.dataUrl.map((url) =>
+  //         moment(url.created_at).format("YYYY-MM-DD")
+  //       ),
+  //     });
+  //   });
+  //   // console.log(result);
+  //   let alldetails = await Promise.all(
+  //     result.map((newres) => User.findById(newres.uid))
+  //   );
+  //   // console.log(alldetails);
+  //   let mergeDetails = [];
+  //   for (let i = 0; i < alldetails.length; i++) {
+  //     result.find((res) => {
+  //       if (alldetails[i] != null) {
+  //         if (res.uid._id.equals(alldetails[i]._id)) {
+  //           const newObj = {
+  //             name: alldetails[i].name,
+  //             email: alldetails[i].email,
+  //             allfiles: res.fname,
+  //             created_at: alldetails[i].createdAt,
+  //           };
+  //           mergeDetails.push(newObj);
+  //           return newObj;
+  //         }
+  //       }
+  //     });
+  //   }
+  //   // console.log(mergeDetails);
+  //   let newresult = [];
+  //   // console.log(mergeDetails);
+  //   mergeDetails.map((md) =>
+  //     md.allfiles.map((allfile) =>
+  //       newresult.push({
+  //         fname: allfile.map((af) => af.split("/").pop()),
+  //         name: md.name,
+  //         email: md.email,
+  //         extname: allfile.map((af) => af.split(".").pop()),
+  //         bucketname: allfile.map((af) => af.split(".")[0].split("//")[1]),
+  //         foldername: allfile.map((af) => af.split("/")[3]),
+  //         url: allfile,
+  //         created_at: md.created_at,
+  //       })
+  //     )
+  //   );
+  //   // console.log(newresult);
+  //   let newresult1 = [];
+  //   newresult.map((newres) =>
+  //     newres.url.map((newurl) =>
+  //       newresult1.push({
+  //         url: newurl,
+  //         name: newres.name,
+  //         email: newres.email,
+  //         bucketname: newurl.split(".")[0].split("//")[1],
+  //         foldername: newurl.split("/")[3],
+  //         filename: newurl.split("/").pop().split(".")[0],
+  //         extname: newurl.split(".").pop(),
+  //         created_at: moment(newres.created_at).format("YYYY-MM-DD"),
+  //       })
+  //     )
+  //   );
+  //   console.log(newresult1);
+  //   const buckets = new Map();
+  //   newresult1.map((newresult = buckets.set(newresult.bucketname)));
+  //   console.log(newresult1);
+  //   res.render("history", {
+  //     layout: "loginlayout",
+  //     results: newresult1,
+  //     userId: req.session.passport.user,
+  //   });
+  // } catch (err) {
+  //   console.error(err);
+  // }
+  const s3 = new AWS.S3({
+    accessKeyId: keyId,
+    secretAccessKey: secretkey,
+    region: region,
+  });
+
+  s3.listBuckets((err, data) => {
+    console.log(data);
+    if (err) {
+      console.log("Error", err);
+    } else {
+      res.render("showalls3files", {
+        buckets: data.Buckets,
+        layout: "loginlayout",
+        userId: req.session.passport.user,
       });
     }
-    // console.log(mergeDetails);
-    let newresult = [];
-    // console.log(mergeDetails);
-    mergeDetails.map((md) =>
-      md.allfiles.map((allfile) =>
-        newresult.push({
-          fname: allfile.map((af) => af.split("/").pop()),
-          name: md.name,
-          email: md.email,
-          extname: allfile.map((af) => af.split(".").pop()),
-          bucketname: allfile.map((af) => af.split(".")[0].split("//")[1]),
-          foldername: allfile.map((af) => af.split("/")[3]),
-          url: allfile,
-          created_at: md.created_at,
-        })
-      )
-    );
-    // console.log(newresult);
-    let newresult1 = [];
-    newresult.map((newres) =>
-      newres.url.map((newurl) =>
-        newresult1.push({
-          url: newurl,
-          name: newres.name,
-          email: newres.email,
-          bucketname: newurl.split(".")[0].split("//")[1],
-          foldername: newurl.split("/")[3],
-          filename: newurl.split("/").pop().split(".")[0],
-          extname: newurl.split(".").pop(),
-          created_at: moment(newres.created_at).format("YYYY-MM-DD"),
-        })
-      )
-    );
-    // console.log(newresult1);
-    res.render("history", {
-      layout: "loginlayout",
-      results: newresult1,
-      userId: req.session.passport.user,
-    });
-  } catch (err) {
-    console.error(err);
-  }
+  });
 });
 
 router.get("/adduser", (req, res) => {

@@ -71,9 +71,11 @@
   
   
 <script>
+	    let id = '<%=userId._id%>'
 document.addEventListener("DOMContentLoaded",()=>{
 
-    let id = '<%=userId._id%>'
+
+	console.log(id)
 	fetch(`/showallfiles/${id}`)
 		.then(data => data.json())
 		.then(result => {
@@ -121,7 +123,26 @@ document.getElementById("search").addEventListener("click",() => {
 
 			})
 	}else{
-		alert("Please Search some data")
+
+		fetch(`/showallfiles/${id}`)
+		.then(data => data.json())
+		.then(result => {
+		const list = document.querySelector("#userlist");
+		list.innerHTML = ''
+		result.map(res =>{
+			const row = document.createElement('tr');
+        row.innerHTML = `
+					<td>${res.filename}</td>
+                    <td>${res.extname}</td>
+                    <td>${res.bucketname}</td>
+					<td>${res.foldername}</td>
+                    <td>${res.createdAt}</td>
+					<td><button class="btn btn-primary delete" value="${res.url}">Download</button></td>
+                    `;
+        list.appendChild(row);
+		})
+
+		})
 	}
 })
 </script>  

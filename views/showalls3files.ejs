@@ -7,7 +7,7 @@
               <div class="col-md-12">
                   <div class="widget">
                       <header class="widget-header">
-                          <h4 class="widget-title">Delete File</h4>
+                          <h4 class="widget-title">Show AllFiles</h4>
                       </header><!-- .widget-header -->
                       <hr class="widget-separator">
             <%- include('partials/messages') %>
@@ -16,11 +16,12 @@
                 <form method="post"  action="/deletefile" >
                   <div class="form-group">
                      <label for="exampleInputEmail1">Chose Bucket</label> 
-                     <select class="form-control" id="bucket" onchange="selectChange(this)" name="bucketname" > 
+                     <select class="form-control" id="bucketname" onchange="selectChange(this)" name="bucketname" > 
                       <option class="form-control" value=""></option>					
                       <% buckets.forEach(user => { %>
                         <option class="form-control" value=<%= user.Name %>><%= user.Name %></option>
                     <% });%>
+
                       </select> 
                     </div> 
                     <div class="form-group"> 
@@ -64,12 +65,11 @@
   <script>
     let fullresult = [];    
     let bucketname;
-    function selectChange(e){
-      console.log(document.getElementById("bucket").value);
-      if(document.getElementById("bucket").value== ""){
+    function selectChange(e){ 
+		if(document.getElementById("bucketname").value== ""){
 		document.getElementById("folder").value = ''
 		document.getElementById("userlist").innerHTML = ''
-		} 
+		}
       bucketname = e.value
       // console.log(bucketname)
       var xmlhttp = new XMLHttpRequest();
@@ -84,11 +84,11 @@
          result1.push(result.result[i]);
         let select = document.getElementById("folder")
         if(select.options.length !=0) select.innerHTML = ''
-        let opt1 = document.createElement("option")
-        opt1.value=''
-        opt1.innerHTML=''
-        select.appendChild(opt1)
-         result1.forEach(name =>{
+		let opt1 = document.createElement("option")
+		opt1.value=''
+		opt1.innerHTML=''
+        select.appendChild(opt1) 
+		result1.forEach(name =>{
           let opt = document.createElement('option');
           opt.value = name;
           opt.innerHTML = name;
@@ -110,6 +110,7 @@
   
     }
     function selectChange1(e){
+
       let lastresult=[];
       console.log("test");
       while(lastresult.length){
@@ -130,7 +131,7 @@
 			const row = document.createElement('tr');
         row.innerHTML = `
                     <td>${res.filename}</td>
-					<td><button type="button" value="${res.url}" class="btn btn-danger delete">Delete File</button></td>
+					<td><a href="${res.url}" class="btn btn-info">Download File</a></td>
                     `;
         list.appendChild(row);
 		})
