@@ -48,7 +48,7 @@
                                         <td><%=result.bucketname%></td>
                                         <td><%=result.foldername%></td>
                                         <td><%=result.created_at%></td>
-										<td><a href="<%=result.url%>" class="btn btn-primary">Download</a></td>
+										<td><button type="button" value="<%=result.url%>" class="btn btn-primary delete">Download</button></td>
 									</tr>
                                         <% });%>
 								  </tbody>
@@ -76,4 +76,28 @@
   <!--========== END app main -->
   
   
-  
+  <script>
+	  document.getElementById("userlist").addEventListener("click", (e) =>{
+		  if(e.target.classList.contains("delete")){
+			let bucketname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+			let filename = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+			fetch(`/ajaxupload2/${bucketname}`)
+			 .then(data => data.json())
+			 .then(response => {
+				//  console.log(response.result1)
+				let flag = true
+				 response.result1.find( fname => {
+					 let newfilename = fname.split("/").pop().split(".")[0]
+					if(newfilename == filename){
+						flag = false
+					}
+				 })
+				 if(!flag){
+					window.open(e.target.value,'Download')
+				 }else{
+					 alert("This file has been deleted")
+				 }
+			 })
+		  }
+	  })
+  </script>

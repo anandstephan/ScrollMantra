@@ -477,15 +477,14 @@ router.get("/history", checkAuthenicated, async (req, res) => {
     let result = [];
     info.map((data) => {
       // console.log(data);
-      if (data.userid.status == false) {
-        result.push({
-          uid: data.userid,
-          fname: data.dataUrl.map((url1) => url1.url),
-          created_at: data.dataUrl.map((url) =>
-            moment(url.created_at).format("YYYY-MM-DD")
-          ),
-        });
-      }
+
+      result.push({
+        uid: data.userid,
+        fname: data.dataUrl.map((url1) => url1.url),
+        created_at: data.dataUrl.map((url) =>
+          moment(url.created_at).format("YYYY-MM-DD")
+        ),
+      });
     });
     // console.log(result);
     let alldetails = await Promise.all(
@@ -587,27 +586,41 @@ router.post("/adduser", (req, res) => {
       layout: "singlelayout",
     });
   } else {
-    const newUser = new User({
-      name,
-      email,
-      password,
-      userType,
-    });
-    //Hash Password
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(newUser.password, salt, (err, hash) => {
-        if (err) throw err;
-        //Set Password to hashed
-        newUser.password = hash;
-        newUser
-          .save()
-          .then((user) => {
-            req.flash("success_msg", "You are now register and can log in");
-            sendMail(email, password);
-            res.redirect("/admin");
-          })
-          .catch((err) => console.log(err));
-      });
+    User.findOne({ email: email }).then((user) => {
+      if (user) {
+        //User exists
+        errors.push({ msg: "Email Already registered" });
+        res.render("adduser", {
+          errors,
+          name,
+          email,
+          password,
+          layout: "singlelayout",
+        });
+      } else {
+        const newUser = new User({
+          name,
+          email,
+          password,
+          userType,
+        });
+        //Hash Password
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+            if (err) throw err;
+            //Set Password to hashed
+            newUser.password = hash;
+            newUser
+              .save()
+              .then((user) => {
+                req.flash("success_msg", "You are now register and can log in");
+                sendMail(email, password);
+                res.redirect("/admin");
+              })
+              .catch((err) => console.log(err));
+          });
+        });
+      }
     });
   }
 });
