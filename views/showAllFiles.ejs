@@ -19,7 +19,7 @@
 			  <div class="col-md-12">
 				  <div class="widget">
 					  <header class="widget-header">
-						  <h4 class="widget-title">All Files</h4>
+						  <h4 class="widget-title">Uploaded Files</h4>
 					  </header>
 					  <hr class="widget-separator"/>
 					  <div class="row">
@@ -37,12 +37,13 @@
 								  <thead>
 									  <tr>
 										 <th>Name</th>
+										 <th>Email</th>
+										 <th>File Name</th>
 										  <th>Type</th>
 										  <th>Bucket Name</th>
 										  <th>Folder Name</th>
-										  <th>File Name</th>
 										  <th>Created At</th>
-										  <th>Download</th>
+											<th>Download</th>
 										</tr>
 								  </thead>
 								  <tbody id="userlist">
@@ -75,20 +76,48 @@
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
 
+	document.getElementById("userlist").addEventListener("click", (e) =>{
+	
+		  if(e.target.classList.contains("delete")){
+	 		let bucketname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+			let filename = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+			// console.log(bucketname,filename)
+			fetch(`/ajaxupload2/${bucketname}`)
+			 .then(data => data.json())
+			 .then(response => {
+				//  console.log(response.result1)
+				let flag = true
+				 response.result1.find( fname => {
+					 let newfilename = fname.split("/").pop().split(".")[0]
+					if(newfilename == filename){
+						flag = false
+					}
+				 })
+				 if(!flag){
+					window.open(e.target.value,'Download')
+				 }else{
+					 alert("This file has been deleted")
+				 }
+			 })
+		  }
+	  })
+
 	fetch("/adminshowallfiles")
 		.then(data => data.json())
 		.then(result => {
+			console.log(result)
 		const list = document.querySelector("#userlist");
 		result.map(res =>{
 			const row = document.createElement('tr');
         row.innerHTML = `
                     <td>${res.username}</td>
+					<td>${res.email}</td>
+					<td>${res.filename}</td>
                     <td>${res.extname}</td>
                     <td>${res.bucketname}</td>
 					<td>${res.foldername}</td>
-					<td>${res.filename}</td>
                     <td>${res.createdAt}</td>
-					<td><a href="${res.test2}" class="btn btn-primary">Download</a></td>
+					<td><button type="button" value="${res.url}" class="btn btn-primary delete">Download</button></td>
                     `;
         list.appendChild(row);
 		})
@@ -108,13 +137,14 @@ document.getElementById("search").addEventListener("click",() => {
 		result.map(res =>{
 			const row = document.createElement('tr');
         row.innerHTML = `
-                    <td>${res.username}</td>
+		<td>${res.username}</td>
+					<td>${res.email}</td>
+					<td>${res.filename}</td>
                     <td>${res.extname}</td>
                     <td>${res.bucketname}</td>
 					<td>${res.foldername}</td>
-					<td>${res.filename}</td>
                     <td>${res.createdAt}</td>
-					<td><a href="${res.test2}" class="btn btn-primary">Download</a></td>
+					<td><button class="btn btn-primary delete" value="${res.test2}">Download</button></td>
                     `;
 			console.log(row)
         list.appendChild(row);
@@ -122,7 +152,28 @@ document.getElementById("search").addEventListener("click",() => {
 
 			})
 	}else{
-		alert("Please Search some data")
+		
+	fetch("/adminshowallfiles")
+		.then(data => data.json())
+		.then(result => {
+		const list = document.querySelector("#userlist");
+		list.innerHTML = ''
+		result.map(res =>{
+			const row = document.createElement('tr');
+        row.innerHTML = `
+					<td>${res.username}</td>
+					<td>${res.email}</td>
+					<td>${res.filename}</td>
+                    <td>${res.extname}</td>
+                    <td>${res.bucketname}</td>
+					<td>${res.foldername}</td>
+                    <td>${res.createdAt}</td>
+					<td><button class="btn btn-primary delete" value="${res.url}">Download</button></td>
+                    `;
+        list.appendChild(row);
+		})
+
+		})
 	}
 })
 </script>  

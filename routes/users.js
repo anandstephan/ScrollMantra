@@ -113,7 +113,7 @@ router.post("/forgotpassword", async (req, res) => {
 
 router.get("/ajaxupload/:param", (req, res) => {
   let bucketname = req.params.param;
-
+  // console.log(bucketname);
   const s3 = new AWS.S3({
     accessKeyId: keyId,
     secretAccessKey: secretkey,
@@ -139,7 +139,7 @@ router.get("/ajaxupload/:param", (req, res) => {
 
 router.get("/ajaxupload2/:param", (req, res) => {
   let bucketname = req.params.param;
-
+  // console.log(bucketname);
   const s3 = new AWS.S3({
     accessKeyId: keyId,
     secretAccessKey: secretkey,
@@ -412,7 +412,7 @@ router.get("/showalluserstatus", async (req, res) => {
 
 router.get("/adminshowallfiles", async (req, res) => {
   try {
-    const infos = await Info.find().populate("userid", "name").lean();
+    const infos = await Info.find().populate("userid", "name email").lean();
     // console.log(infos);
     let result = [];
     const infos1 = infos.map((info) =>
@@ -421,6 +421,7 @@ router.get("/adminshowallfiles", async (req, res) => {
           result.push({
             url: test2,
             filename: test2.split("/").pop(),
+            email: info.userid.email,
             extname: test2.split(".").pop(),
             bucketname: test2.split(".")[0].split("//")[1],
             foldername: test2.split("/")[3],
@@ -747,10 +748,16 @@ router.get("/search/:filename", async (req, res) => {
       filename.dataUrl.map((file) =>
         file.url.map((txt) => {
           if (
-            txt.split("/").pop().split(".")[0].search(req.params.filename) != -1
+            txt
+              .split("/")
+              .pop()
+              .split(".")[0]
+              .toLowerCase()
+              .indexOf(req.params.filename.toLowerCase()) != -1
           ) {
             result.push({
               username: filename.userid.name,
+              email: filename.userid.email,
               createdAt: moment(file.created_at).format("YYYY-MM-DD"),
               filename: txt.split("/").pop().split(".")[0],
               extname: txt.split(".").pop(),
@@ -762,7 +769,7 @@ router.get("/search/:filename", async (req, res) => {
         })
       )
     );
-
+    // console.log(result);
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
