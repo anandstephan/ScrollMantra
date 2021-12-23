@@ -76,17 +76,19 @@
       xmlhttp.onreadystatechange = function() {
       if (xmlhttp.readyState == 4&& xmlhttp.status == 200) {   // XMLHttpRequest.DONE == 4
        if (xmlhttp.status == 200) {
+
          let result = JSON.parse(xmlhttp.responseText)
-        // console.log(result)
         fullresult = result.result1;
          let result1 = [];
-         for(let i=0;i<result.result.length;i++)
-         result1.push(result.result[i]);
+         for(let i=0;i<result.result.length;i++){
+         if(result.result[i].split("/")[1].length ==0)
+          result1.push(result.result[i]);
+         }
         let select = document.getElementById("folder")
         if(select.options.length !=0) select.innerHTML = ''
-		let opt1 = document.createElement("option")
-		opt1.value=''
-		opt1.innerHTML=''
+        let opt1 = document.createElement("option")
+        opt1.value=''
+        opt1.innerHTML=''
         select.appendChild(opt1) 
 		result1.forEach(name =>{
           let opt = document.createElement('option');
@@ -116,11 +118,17 @@
       while(lastresult.length){
         lastresult.pop()
       }
+      console.log(fullresult)
       fullresult.map( result => {
         let foldername = result.split('/')[0].toLowerCase()
         let selectedfoldername = e.value.split('/')[0].toLowerCase()
+        // console.log(foldername,selectedfoldername)
+ 
           if(foldername === selectedfoldername){
+          if(result.split('/').length==2)
           lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${foldername}/${result.split('/')[1]}`,filename:result.split('/')[1]})
+          else
+          lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${result}`,filename:result.split("/")[1]+"/"+result.split('/')[2]})
         }
     })
     
@@ -130,8 +138,8 @@
 		lastresult.map(res =>{
 			const row = document.createElement('tr');
         row.innerHTML = `
-                    <td>${res.filename}</td>
-					<td><a href="${res.url}" class="btn btn-info">Download File</a></td>
+            <td>${res.filename}</td>
+					<td><a href="${res.url}" target="_blank" class="btn btn-info" >Download File</a></td>
                     `;
         list.appendChild(row);
 		})
@@ -162,5 +170,43 @@
     }
   })
   
+
+    function selectChange2(e){
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState == 4&& xmlhttp.status == 200) {   // XMLHttpRequest.DONE == 4
+       if (xmlhttp.status == 200) {
+         let result = JSON.parse(xmlhttp.responseText)
+        console.log(result)
+    //     fullresult = result.result1;
+    //      let result1 = [];
+    //      for(let i=0;i<result.result.length;i++)
+    //      result1.push(result.result[i]);
+    //     let select = document.getElementById("folder")
+    //     if(select.options.length !=0) select.innerHTML = ''
+    //     let opt1 = document.createElement("option")
+    //     opt1.value=''
+    //     opt1.innerHTML=''
+    //     select.appendChild(opt1) 
+		// result1.forEach(name =>{
+    //       let opt = document.createElement('option');
+    //       opt.value = name;
+    //       opt.innerHTML = name;
+    //       select.appendChild(opt);
+    //      })
+          //  document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+       }
+       else if (xmlhttp.status == 400) {
+          alert('There was an error 400');
+       }
+       else {
+           alert('something else other than 200 was returned');
+       }
+    }
+  };
+  
+  xmlhttp.open("GET", `ajaxupload3/${bucketname}/${e.value}`, true);
+  xmlhttp.send();
+    }
   </script>
   

@@ -149,8 +149,41 @@ router.get("/ajaxupload2/:param", (req, res) => {
 
   async function test2() {
     await s3
-      .listObjectsV2({
+      .listObjects({
         Bucket: bucketname,
+      })
+      .promise()
+      .then((data) => {
+        let result = [];
+        let result1 = [];
+        data.Contents.forEach(
+          (content) => content.Size == 0 && result.push(content.Key)
+        );
+        data.Contents.forEach(
+          (content) => content.Size != 0 && result1.push(content.Key)
+        );
+        res.status(200).json({ result, result1 });
+      });
+  }
+  test2();
+});
+
+router.get("/ajaxupload3/:param1/:param2", (req, res) => {
+  let bucketname = req.params.param1;
+  let foldername = req.params.param2;
+  // console.log(bucketname, foldername);
+  // console.log(bucketname);
+  const s3 = new AWS.S3({
+    accessKeyId: keyId,
+    secretAccessKey: secretkey,
+    region: region,
+  });
+
+  async function test2() {
+    await s3
+      .listObjects({
+        Bucket: bucketname,
+        Prefix: "test2/testing/",
       })
       .promise()
       .then((data) => {
@@ -564,7 +597,7 @@ router.get("/showalls3files", checkAuthenicated, async (req, res) => {
   });
 
   s3.listBuckets((err, data) => {
-    console.log(data);
+    // console.log(data);
     if (err) {
       console.log("Error", err);
     } else {
