@@ -11,7 +11,6 @@
                       </header><!-- .widget-header -->
                       <hr class="widget-separator">
             <%- include('partials/messages') %>
-          
                       <div class="widget-body">
                 <form method="post"  action="/deletefile" >
                   <div class="form-group">
@@ -27,16 +26,15 @@
                       <label for="exampleInputPassword1">Folder Name</label> 
                       <select class="form-control" id="folder" onchange="selectChange1(this)" name="folder" > 
                       </select>
-                  
                      </div> 
-  </form>
+                      </form>
                           <hr class="widget-separator">
                           <div class="table-responsive">							
                             <table class="table no-cellborder">
                               <thead>
                                 <tr>
                                  <th>File Name</th>
-                                  <th>Download</th>
+                                  <th>Delete</th>
                                 </tr>
                               </thead>
                               <tbody id="userlist">
@@ -119,7 +117,10 @@
         let foldername = result.split('/')[0].toLowerCase()
         let selectedfoldername = e.value.split('/')[0].toLowerCase()
           if(foldername === selectedfoldername){
+            if(result.split('/').length==2)
           lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${foldername}/${result.split('/')[1]}`,filename:result.split('/')[1]})
+          else
+          lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${result}`,filename:result.split("/")[1]+"/"+result.split('/')[result.split("/").length-1]})
         }
     })
     
