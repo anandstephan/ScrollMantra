@@ -19,11 +19,6 @@ const uploads3 = multer({
   storage: multerS3({
     s3: s3,
     bucket: function (req, file, cb) {
-      // console.log(
-      //   req.body.bucket +
-      //     "/" +
-      //     req.body.folder.substring(0, req.body.folder.length - 1)
-      // );
       if (req.body.folder != undefined) {
         cb(
           null,

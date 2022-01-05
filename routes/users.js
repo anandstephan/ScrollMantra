@@ -14,6 +14,7 @@ const moment = require("moment");
 const multer = require("multer");
 const fs = require("fs-extra");
 const Track = require("../models/Track");
+const s3 = require("s3-client");
 
 var ObjectId = require("mongoose").Types.ObjectId;
 
@@ -831,6 +832,47 @@ router.get("/search/:filename", async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+});
+
+router.post("/downloads3file", (req, res) => {
+  const client = s3.createClient({
+    maxAsyncS3: 20, // this is the default
+    s3RetryCount: 3, // this is the default
+    s3RetryDelay: 1000, // this is the default
+    multipartUploadThreshold: 20971520, // this is the default (20 MB)
+    multipartUploadSize: 15728640, // this is the default (15 MB)
+    s3Options: {
+      accessKeyId: keyId,
+      secretAccessKey: secretkey,
+      region: region,
+    },
+  });
+
+  var params = {
+    localFile: "downloadfile/" + req.body.filename + "." + req.body.extname,
+
+    s3Params: {
+      Bucket: req.body.bucketName,
+      Key:
+        req.body.foldername + "/" + req.body.filename + "." + req.body.extname,
+    },
+  };
+  console.log(params);
+  const downloader = client.downloadFile(params);
+  downloader.on("error", function (err) {
+    console.error("unable to download:", err);
+  });
+  downloader.on("progress", function () {
+    console.log(
+      "progress",
+      downloader.progressAmount,
+      downloader.progressTotal
+    );
+  });
+  downloader.on("end", function () {
+    console.log("end");
+    console.log("done downloading");
+  });
 });
 
 module.exports = router;

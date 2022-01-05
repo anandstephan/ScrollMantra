@@ -73,9 +73,6 @@
 <script>
 	    let id = '<%=userId._id%>'
 document.addEventListener("DOMContentLoaded",()=>{
-
-
-	console.log(id)
 	fetch(`/showallfiles/${id}`)
 		.then(data => data.json())
 		.then(result => {
@@ -89,13 +86,42 @@ document.addEventListener("DOMContentLoaded",()=>{
                     <td>${res.bucketname}</td>
 					<td>${res.foldername}</td>
                     <td>${res.createdAt}</td>
-                    <td><a href="${res.url}" class="btn btn-primary">Dowload</a></td>
+                    <td><button class="btn btn-primary">Dowload</button></td>
 					`;
         list.appendChild(row);
 		})
 		})
 })
 
+setTimeout(()=>{
+	let btn = document.getElementsByClassName("btn")
+let btn2 = Array.from(btn)
+btn2.map(btn1 => btn1.addEventListener("click",(e)=>{
+	let foldername = e.target.parentElement.previousElementSibling.previousElementSibling.textContent
+	let bucketname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+	let extname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+	let filename = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+downloadFile(filename,bucketname,foldername,extname)	
+}))
+function downloadFile(filename,bucketname,foldername,extname){
+	// console.log(filename)
+	console.log(bucketname,foldername,filename,extname)
+	fetch("/downloads3file",{
+		method: 'POST', // or 'PUT'
+  headers: {
+    'Content-Type': 'application/json',
+  },
+		body:JSON.stringify({
+			foldername:foldername,
+			bucketName:bucketname,
+			filename:filename,
+			extname:extname
+		})
+	})
+	.then(res => res.json())
+	.then(data => console.log(data))
+}
+},3000)
 
 document.getElementById("search").addEventListener("click",() => {
 	let filename = document.getElementById("searchTerm").value;
