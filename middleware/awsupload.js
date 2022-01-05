@@ -35,7 +35,6 @@ const uploads3 = multer({
         cb(null, req.body.bucket);
       }
     },
-    acl: "public-read",
     key: (req, file, cb) => {
       cb(null, Date.now() + "-" + file.originalname);
     },
