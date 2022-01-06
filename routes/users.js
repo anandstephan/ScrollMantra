@@ -13,8 +13,11 @@ const region = require("../config/key").region;
 const moment = require("moment");
 const multer = require("multer");
 const fs = require("fs-extra");
+const fs1 = require("fs");
 const Track = require("../models/Track");
 const s3 = require("s3-client");
+const open = require("open");
+const path = require("path");
 
 var ObjectId = require("mongoose").Types.ObjectId;
 
@@ -849,15 +852,18 @@ router.post("/downloads3file", (req, res) => {
   });
 
   var params = {
-    localFile: "downloadfile/" + req.body.filename + "." + req.body.extname,
+    localFile:
+      "downloadfile/" +
+      decodeURI(req.body.filename) +
+      "." +
+      decodeURI(req.body.extname),
 
     s3Params: {
       Bucket: req.body.bucketName,
-      Key:
-        req.body.foldername + "/" + req.body.filename + "." + req.body.extname,
+      Key: req.body.url,
     },
   };
-  console.log(params);
+  // console.log(params);
   const downloader = client.downloadFile(params);
   downloader.on("error", function (err) {
     console.error("unable to download:", err);
@@ -872,6 +878,35 @@ router.post("/downloads3file", (req, res) => {
   downloader.on("end", function () {
     console.log("end");
     console.log("done downloading");
+    // return "test";
+
+    console.log(
+      path.join(
+        __dirname,
+        "..",
+        "downloadfile/" +
+          decodeURI(req.body.filename) +
+          "." +
+          decodeURI(req.body.extname)
+      )
+    );
+    res
+      .status(200)
+      .json(
+        path.join(
+          __dirname,
+          "..",
+          "downloadfile/" + req.body.filename + "." + req.body.extname
+        )
+      );
+    // open(
+    //   path.join(
+    //     __dirname,
+    //     "..",
+    //     "downloadfile" + req.body.filename + "." + req.body.extname
+    //   )
+    // );
+    // open();
   });
 });
 

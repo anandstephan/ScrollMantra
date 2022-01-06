@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 					<td>${res.foldername}</td>
                     <td>${res.createdAt}</td>
                     <td><button class="btn btn-primary">Dowload</button></td>
+					<td style="display:none">${res.url}</td>
 					`;
         list.appendChild(row);
 		})
@@ -101,25 +102,30 @@ btn2.map(btn1 => btn1.addEventListener("click",(e)=>{
 	let bucketname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.textContent
 	let extname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
 	let filename = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
-downloadFile(filename,bucketname,foldername,extname)	
+	let url = e.target.parentElement.nextElementSibling.textContent
+	let requiredUrl = url.split("//")[1].split(".com")[1]
+	downloadFile(filename,bucketname,foldername,extname,decodeURI(requiredUrl))	
 }))
-function downloadFile(filename,bucketname,foldername,extname){
-	// console.log(filename)
-	console.log(bucketname,foldername,filename,extname)
+function downloadFile(filename,bucketname,foldername,extname,requiredUrl){
+	console.log("downloadfile")
 	fetch("/downloads3file",{
 		method: 'POST', // or 'PUT'
-  headers: {
-    'Content-Type': 'application/json',
-  },
+		headers: {
+			'Content-Type': 'application/json',
+		},
 		body:JSON.stringify({
 			foldername:foldername,
 			bucketName:bucketname,
 			filename:filename,
-			extname:extname
+			extname:extname,
+			url:requiredUrl.substring(1)
 		})
 	})
 	.then(res => res.json())
-	.then(data => console.log(data))
+	.then(data =>{
+		console.log(data)
+		window.open(data)
+	})
 }
 },3000)
 
