@@ -98,6 +98,7 @@ setTimeout(()=>{
 	let btn = document.getElementsByClassName("btn")
 let btn2 = Array.from(btn)
 btn2.map(btn1 => btn1.addEventListener("click",(e)=>{
+	// console.log("tick")
 	let foldername = e.target.parentElement.previousElementSibling.previousElementSibling.textContent
 	let bucketname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.textContent
 	let extname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
@@ -124,8 +125,19 @@ function downloadFile(filename,bucketname,foldername,extname,requiredUrl){
 	.then(res => res.json())
 	.then(data =>{
 		console.log(data)
-		window.open(data)
+		// window.open(data)
+		var link = document.createElement("a");
+    // If you don't know the name or want to use
+    // the webserver default set name = ''
+    link.setAttribute('download', data.filename);
+	link.setAttribute("target","_blank");
+	link.href = data.filepath;
+    document.body.appendChild(link);
+	console.log("link",link)
+    link.click();
+    link.remove();
 	})
+	.catch(err => console.log(err))
 }
 },3000)
 

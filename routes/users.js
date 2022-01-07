@@ -880,25 +880,33 @@ router.post("/downloads3file", (req, res) => {
     console.log("done downloading");
     // return "test";
 
-    console.log(
-      path.join(
+    // console.lo-
+    // res.download(
+    //   path.join(
+    //     __dirname,
+    //     "..",
+    //     "downloadfile/" +
+    //       decodeURI(req.body.filename) +
+    //       "." +
+    //       decodeURI(req.body.extname)
+    //   )
+    // );
+    res.set({
+      "Content-Disposition":
+        "attachment; filename=" + decodeURI(req.body.filename),
+    });
+    res.json({
+      filepath: path.join(
         __dirname,
         "..",
         "downloadfile/" +
           decodeURI(req.body.filename) +
           "." +
           decodeURI(req.body.extname)
-      )
-    );
-    res
-      .status(200)
-      .json(
-        path.join(
-          __dirname,
-          "..",
-          "downloadfile/" + req.body.filename + "." + req.body.extname
-        )
-      );
+      ),
+      filename: req.body.filename,
+    });
+
     // open(
     //   path.join(
     //     __dirname,
