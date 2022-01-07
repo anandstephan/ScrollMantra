@@ -65,6 +65,18 @@ const s3 = new AWS.S3({
   region: region,
 });
 
+const checkAuthenicated = function (req, res, next) {
+  if (req.isAuthenticated()) {
+    res.set(
+      "Cache-Control",
+      "no-cache,private,no-store,must-relative,post-check=0,pre-check=0"
+    );
+    return next();
+  } else {
+    res.redirect("/");
+  }
+};
+
 router.get("/", (req, res) => {
   res.render("login", { layout: "singlelayout" });
 });
@@ -236,17 +248,6 @@ router.get("/test", (req, res) => {
   res.render("pdfviewer");
 });
 
-const checkAuthenicated = function (req, res, next) {
-  if (req.isAuthenticated()) {
-    res.set(
-      "Cache-Control",
-      "no-cache,private,no-store,must-relative,post-check=0,pre-check=0"
-    );
-    return next();
-  } else {
-    res.redirect("/");
-  }
-};
 //upload file get
 router.get("/upload", checkAuthenicated, (req, res) => {
   // Set Amazon Uploading Engine

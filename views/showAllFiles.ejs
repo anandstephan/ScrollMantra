@@ -110,17 +110,19 @@ document.addEventListener("DOMContentLoaded",()=>{
 		result.map(res =>{
 			const row = document.createElement('tr');
         row.innerHTML = `
-                    <td>${res.username}</td>
+		<td>${res.username}</td>
 					<td>${res.email}</td>
 					<td>${res.filename}</td>
                     <td>${res.extname}</td>
                     <td>${res.bucketname}</td>
 					<td>${res.foldername}</td>
                     <td>${res.createdAt}</td>
-					<td><button type="button" value="${res.url}" class="btn btn-primary delete">Download</button></td>
+					<td><button class="btn btn-primary">Download</button></td>
+					<td style="display:none">${res.url}</td>
                     `;
         list.appendChild(row);
 		})
+		dynamicBtn()
 
 		})
 })
@@ -144,11 +146,14 @@ document.getElementById("search").addEventListener("click",() => {
                     <td>${res.bucketname}</td>
 					<td>${res.foldername}</td>
                     <td>${res.createdAt}</td>
-					<td><button class="btn btn-primary delete" value="${res.test2}">Download</button></td>
+					<td><button class="btn btn-primary">Download</button></td>
+					<td style="display:none">${res.url}</td>
                     `;
 			console.log(row)
         list.appendChild(row);
-		})
+			
+	})
+	dynamicBtn()
 
 			})
 	}else{
@@ -168,12 +173,58 @@ document.getElementById("search").addEventListener("click",() => {
                     <td>${res.bucketname}</td>
 					<td>${res.foldername}</td>
                     <td>${res.createdAt}</td>
-					<td><button class="btn btn-primary delete" value="${res.url}">Download</button></td>
+					<td><button class="btn btn-primary">Download</button></td>
+					<td style="display:none">${res.url}</td>
                     `;
         list.appendChild(row);
 		})
-
 		})
 	}
+
 })
+function downloadFile(filename,bucketname,foldername,extname,requiredUrl){
+	
+	fetch("/downloads3file",{
+		method: 'POST', // or 'PUT'
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body:JSON.stringify({
+			foldername:foldername,
+			bucketName:bucketname,
+			filename:filename,
+			extname:extname,
+			url:requiredUrl.substring(1)
+		})
+	})
+	.then(res => res.json())
+	.then(res =>{
+		// console.log(res)
+		let byteArray = new Uint8Array(res.data.Body.data);
+		let blob=new Blob([byteArray], {type: res.data.ContentType})
+		let link=document.createElement('a');
+		link.href=window.URL.createObjectURL(blob);
+		link.download=res.filename;
+		link.click();
+	})
+	.catch(err => console.log(err))
+}
+function dynamicBtn(){
+
+
+let btn = document.getElementsByClassName("btn")
+	console.log(btn)
+let btn2 = Array.from(btn)
+btn2.map(btn1 => btn1.addEventListener("click",(e)=>{
+	console.log("tick")
+	let foldername = e.target.parentElement.previousElementSibling.previousElementSibling.textContent
+	let bucketname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+	let extname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+	let filename = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
+	let url = e.target.parentElement.nextElementSibling.textContent
+	let requiredUrl = url.split("//")[1].split(".com")[1]
+	downloadFile(filename,bucketname,foldername,extname,decodeURI(requiredUrl))	
+})
+)
+}
 </script>  
