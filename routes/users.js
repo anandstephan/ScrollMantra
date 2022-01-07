@@ -15,7 +15,7 @@ const multer = require("multer");
 const fs = require("fs-extra");
 const fs1 = require("fs");
 const Track = require("../models/Track");
-const s3 = require("s3-client");
+// const s3 = require("s3-client");
 const open = require("open");
 const path = require("path");
 
@@ -58,6 +58,12 @@ function sendMail(to, msg) {
     }
   });
 }
+
+const s3 = new AWS.S3({
+  accessKeyId: keyId,
+  secretAccessKey: secretkey,
+  region: region,
+});
 
 router.get("/", (req, res) => {
   res.render("login", { layout: "singlelayout" });
@@ -119,11 +125,6 @@ router.post("/forgotpassword", async (req, res) => {
 router.get("/ajaxupload/:param", (req, res) => {
   let bucketname = req.params.param;
   // console.log(bucketname);
-  const s3 = new AWS.S3({
-    accessKeyId: keyId,
-    secretAccessKey: secretkey,
-    region: region,
-  });
 
   async function test2() {
     await s3
@@ -145,11 +146,6 @@ router.get("/ajaxupload/:param", (req, res) => {
 router.get("/ajaxupload2/:param", (req, res) => {
   let bucketname = req.params.param;
   // console.log(bucketname);
-  const s3 = new AWS.S3({
-    accessKeyId: keyId,
-    secretAccessKey: secretkey,
-    region: region,
-  });
 
   async function test2() {
     await s3
@@ -177,11 +173,6 @@ router.get("/ajaxupload3/:param1/:param2", (req, res) => {
   let foldername = req.params.param2;
   // console.log(bucketname, foldername);
   // console.log(bucketname);
-  const s3 = new AWS.S3({
-    accessKeyId: keyId,
-    secretAccessKey: secretkey,
-    region: region,
-  });
 
   async function test2() {
     await s3
@@ -206,12 +197,6 @@ router.get("/ajaxupload3/:param1/:param2", (req, res) => {
 });
 
 router.post("/deletefile", async (req, res) => {
-  const s3 = new AWS.S3({
-    accessKeyId: keyId,
-    secretAccessKey: secretkey,
-    region: region,
-  });
-
   let bucketname = req.body.bucketname;
   let key = req.body.folder + "/" + req.body.filename;
   const params = {
@@ -265,11 +250,6 @@ const checkAuthenicated = function (req, res, next) {
 //upload file get
 router.get("/upload", checkAuthenicated, (req, res) => {
   // Set Amazon Uploading Engine
-  const s3 = new AWS.S3({
-    accessKeyId: keyId,
-    secretAccessKey: secretkey,
-    region: region,
-  });
 
   s3.listBuckets((err, data) => {
     if (err) {
@@ -286,11 +266,6 @@ router.get("/upload", checkAuthenicated, (req, res) => {
 
 router.get("/adminupload", checkAuthenicated, (req, res) => {
   // Set Amazon Uploading Engine
-  const s3 = new AWS.S3({
-    accessKeyId: keyId,
-    secretAccessKey: secretkey,
-    region: region,
-  });
 
   s3.listBuckets((err, data) => {
     if (err) {
@@ -307,12 +282,6 @@ router.get("/adminupload", checkAuthenicated, (req, res) => {
 
 //Admin Delete
 router.get("/admindelete", checkAuthenicated, (req, res) => {
-  const s3 = new AWS.S3({
-    accessKeyId: keyId,
-    secretAccessKey: secretkey,
-    region: region,
-  });
-
   s3.listBuckets((err, data) => {
     if (err) {
       console.log("Error", err);
@@ -594,11 +563,6 @@ router.get("/showalls3files", checkAuthenicated, async (req, res) => {
   // } catch (err) {
   //   console.error(err);
   // }
-  const s3 = new AWS.S3({
-    accessKeyId: keyId,
-    secretAccessKey: secretkey,
-    region: region,
-  });
 
   s3.listBuckets((err, data) => {
     // console.log(data);
@@ -838,84 +802,99 @@ router.get("/search/:filename", async (req, res) => {
 });
 
 router.post("/downloads3file", (req, res) => {
-  const client = s3.createClient({
-    maxAsyncS3: 20, // this is the default
-    s3RetryCount: 3, // this is the default
-    s3RetryDelay: 1000, // this is the default
-    multipartUploadThreshold: 20971520, // this is the default (20 MB)
-    multipartUploadSize: 15728640, // this is the default (15 MB)
-    s3Options: {
-      accessKeyId: keyId,
-      secretAccessKey: secretkey,
-      region: region,
-    },
-  });
-
-  var params = {
-    localFile:
-      "downloadfile/" +
-      decodeURI(req.body.filename) +
-      "." +
-      decodeURI(req.body.extname),
-
-    s3Params: {
-      Bucket: req.body.bucketName,
-      Key: req.body.url,
-    },
+  // console.log(req.body);
+  let params = {
+    Bucket: req.body.bucketName,
+    Key: req.body.url,
   };
-  // console.log(params);
-  const downloader = client.downloadFile(params);
-  downloader.on("error", function (err) {
-    console.error("unable to download:", err);
-  });
-  downloader.on("progress", function () {
-    console.log(
-      "progress",
-      downloader.progressAmount,
-      downloader.progressTotal
-    );
-  });
-  downloader.on("end", function () {
-    console.log("end");
-    console.log("done downloading");
-    // return "test";
 
-    // console.lo-
-    // res.download(
-    //   path.join(
-    //     __dirname,
-    //     "..",
-    //     "downloadfile/" +
-    //       decodeURI(req.body.filename) +
-    //       "." +
-    //       decodeURI(req.body.extname)
-    //   )
-    // );
+  s3.getObject(params, (err, data) => {
+    if (err) console.error(err);
+    res.attachment(req.body.url);
     res.set({
-      "Content-Disposition":
-        "attachment; filename=" + decodeURI(req.body.filename),
+      "Content-Type": "application/octet-stream",
+      "Content-Disposition": "attachment; filename=" + req.body.filename,
     });
-    res.json({
-      filepath: path.join(
-        __dirname,
-        "..",
-        "downloadfile/" +
-          decodeURI(req.body.filename) +
-          "." +
-          decodeURI(req.body.extname)
-      ),
-      filename: req.body.filename,
-    });
-
-    // open(
-    //   path.join(
-    //     __dirname,
-    //     "..",
-    //     "downloadfile" + req.body.filename + "." + req.body.extname
-    //   )
-    // );
-    // open();
+    res.json({ data, filename: req.body.filename + "." + req.body.extname });
   });
+  // res.attachment(req.body.url);
+  // var fileStream = s3.getObject(params).createReadStream();
+  // fileStream.pipe(res);
+
+  // const client = s3.createClient({
+  //   maxAsyncS3: 20, // this is the default
+  //   s3RetryCount: 3, // this is the default
+  //   s3RetryDelay: 1000, // this is the default
+  //   multipartUploadThreshold: 20971520, // this is the default (20 MB)
+  //   multipartUploadSize: 15728640, // this is the default (15 MB)
+  //   s3Options: {
+  //     accessKeyId: keyId,
+  //     secretAccessKey: secretkey,
+  //     region: region,
+  //   },
+  // });
+  // var params = {
+  //   localFile:
+  //     "downloadfile/" +
+  //     decodeURI(req.body.filename) +
+  //     "." +
+  //     decodeURI(req.body.extname),
+  //   s3Params: {
+  //     Bucket: req.body.bucketName,
+  //     Key: req.body.url,
+  //   },
+  // };
+  // // console.log(params);
+  // const downloader = client.downloadFile(params);
+  // downloader.on("error", function (err) {
+  //   console.error("unable to download:", err);
+  // });
+  // downloader.on("progress", function () {
+  //   console.log(
+  //     "progress",
+  //     downloader.progressAmount,
+  //     downloader.progressTotal
+  //   );
+  // });
+  // downloader.on("end", function () {
+  //   console.log("end");
+  //   console.log("done downloading");
+  //   // return "test";
+  //   // console.lo-
+  //   // res.download(
+  //   //   path.join(
+  //   //     __dirname,
+  //   //     "..",
+  //   //     "downloadfile/" +
+  //   //       decodeURI(req.body.filename) +
+  //   //       "." +
+  //   //       decodeURI(req.body.extname)
+  //   //   )
+  //   // );
+  //   res.set({
+  //     "Content-Disposition":
+  //       "attachment; filename=" + decodeURI(req.body.filename),
+  //   });
+  //   res.json({
+  //     filepath: path.join(
+  //       __dirname,
+  //       "..",
+  //       "downloadfile/" +
+  //         decodeURI(req.body.filename) +
+  //         "." +
+  //         decodeURI(req.body.extname)
+  //     ),
+  //     filename: req.body.filename,
+  //   });
+  //   // open(
+  //   //   path.join(
+  //   //     __dirname,
+  //   //     "..",
+  //   //     "downloadfile" + req.body.filename + "." + req.body.extname
+  //   //   )
+  //   // );
+  //   // open();
+  // });
 });
 
 module.exports = router;
