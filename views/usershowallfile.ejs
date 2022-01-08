@@ -77,7 +77,6 @@ document.addEventListener("DOMContentLoaded",()=>{
 	fetch(`/showallfiles/${id}`)
 		.then(data => data.json())
 		.then(result => {
-			console.log(result)
 		const list = document.querySelector("#userlist");
 		result.map(res =>{
 			const row = document.createElement('tr');
@@ -87,16 +86,76 @@ document.addEventListener("DOMContentLoaded",()=>{
                     <td>${res.bucketname}</td>
 					<td>${res.foldername}</td>
                     <td>${res.createdAt}</td>
-                    <td><button class="btn btn-primary">Download</button></td>
+                    <td><button class="btn btn-primary delete">Download</button></td>
 					<td style="display:none">${res.url}</td>
 					`;
         list.appendChild(row);
 		})
-		let btn = document.getElementsByClassName("btn")
-	console.log(btn)
+		dynamicBtn()
+	}
+		
+		)
+})
+
+
+
+document.getElementById("search").addEventListener("click",() => {
+	let filename = document.getElementById("searchTerm").value;
+	if(filename!=""){
+		fetch(`/search/${filename}`)
+			.then(result => result.json())
+			.then(result => {
+				const list = document.querySelector("#userlist");
+				list.innerHTML =''
+		result.map(res =>{
+			const row = document.createElement('tr');
+        row.innerHTML = `
+					<td>${res.filename}</td>
+                    <td>${res.extname}</td>
+                    <td>${res.bucketname}</td>
+					<td>${res.foldername}</td>
+                    <td>${res.createdAt}</td>
+                    <td><button class="btn btn-primary delete">Download</button></td>
+					<td style="display:none">${res.url}</td>
+					`
+        list.appendChild(row);
+		})
+		dynamicBtn()
+
+			})
+	}else{
+
+		fetch(`/showallfiles/${id}`)
+		.then(data => data.json())
+		.then(result => {
+		const list = document.querySelector("#userlist");
+		list.innerHTML = ''
+		result.map(res =>{
+			const row = document.createElement('tr');
+        row.innerHTML = `
+					<td>${res.filename}</td>
+                    <td>${res.extname}</td>
+                    <td>${res.bucketname}</td>
+					<td>${res.foldername}</td>
+                    <td>${res.createdAt}</td>
+                    <td><button class="btn btn-primary delete">Download</button></td>
+					<td style="display:none">${res.url}</td>
+                    `;
+        list.appendChild(row);
+		})
+		dynamicBtn()
+
+		})
+	}
+})
+
+function dynamicBtn(){
+
+
+let btn = document.getElementsByClassName("delete")
 let btn2 = Array.from(btn)
 btn2.map(btn1 => btn1.addEventListener("click",(e)=>{
-	console.log("tick")
+	console.log(e.target)
 	let foldername = e.target.parentElement.previousElementSibling.previousElementSibling.textContent
 	let bucketname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.textContent
 	let extname = e.target.parentElement.previousElementSibling.previousElementSibling.previousElementSibling.previousElementSibling.textContent
@@ -105,12 +164,8 @@ btn2.map(btn1 => btn1.addEventListener("click",(e)=>{
 	let requiredUrl = url.split("//")[1].split(".com")[1]
 	downloadFile(filename,bucketname,foldername,extname,decodeURI(requiredUrl))	
 })
-)	
-	}
-		
-		)
-})
-
+)
+}
 
 function downloadFile(filename,bucketname,foldername,extname,requiredUrl){
 	
@@ -139,52 +194,5 @@ function downloadFile(filename,bucketname,foldername,extname,requiredUrl){
 	})
 	.catch(err => console.log(err))
 }
-document.getElementById("search").addEventListener("click",() => {
-	let filename = document.getElementById("searchTerm").value;
-	if(filename!=""){
-		fetch(`/search/${filename}`)
-			.then(result => result.json())
-			.then(result => {
-				const list = document.querySelector("#userlist");
-				list.innerHTML =''
-				console.log("test")
-				console.log(result)
-		result.map(res =>{
-			const row = document.createElement('tr');
-        row.innerHTML = `
-					<td>${res.filename}</td>
-                    <td>${res.extname}</td>
-                    <td>${res.bucketname}</td>
-					<td>${res.foldername}</td>
-                    <td>${res.createdAt}</td>
-					<td><a href="${res.test2}" class="btn btn-primary">Download</a></td>
-                    `;
-			console.log(row)
-        list.appendChild(row);
-		})
 
-			})
-	}else{
-
-		fetch(`/showallfiles/${id}`)
-		.then(data => data.json())
-		.then(result => {
-		const list = document.querySelector("#userlist");
-		list.innerHTML = ''
-		result.map(res =>{
-			const row = document.createElement('tr');
-        row.innerHTML = `
-					<td>${res.filename}</td>
-                    <td>${res.extname}</td>
-                    <td>${res.bucketname}</td>
-					<td>${res.foldername}</td>
-                    <td>${res.createdAt}</td>
-					<td><button class="btn btn-primary delete" value="${res.url}">Download</button></td>
-                    `;
-        list.appendChild(row);
-		})
-
-		})
-	}
-})
 </script>  

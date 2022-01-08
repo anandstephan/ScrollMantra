@@ -790,6 +790,7 @@ router.get("/search/:filename", async (req, res) => {
               foldername: txt.split("/")[3],
               bucketname: txt.split(".")[0].split("//")[1],
               test2: txt,
+              url: txt,
             });
           }
         })
