@@ -68,11 +68,10 @@ xmlhttp.onreadystatechange = function() {
       //  console.log("test",xmlhttp.responseText);
 
        let result = JSON.parse(xmlhttp.responseText)
-  
+      console.log("test",result)
        let result1 = [];
        for(let i=0;i<result.length;i++)
        result1.push(result[i]);
-       console.log(result1)
       let select = document.getElementById("folder")
       if(select.options.length !=0) select.innerHTML = ''
        result1.forEach(name =>{
@@ -100,10 +99,6 @@ xmlhttp.send();
   }
 
 
-  document.addEventListener("DOMContentLoaded",(e)=>{
-   setTimeout(function(){
-    // console.log(document.getElementById("bucket")[])
-   },1000)
-  })
+
 
 </script>

@@ -85,21 +85,23 @@ document.addEventListener("DOMContentLoaded",()=>{
 			fetch(`/ajaxupload2/${bucketname}`)
 			 .then(data => data.json())
 			 .then(response => {
-				//  console.log(response)
 				let flag = true
 				 response.result1.find( fname => {
 					 let newfilename = fname.split("/").pop().split(".")[0]
-					if(newfilename == filename){
+					 console.log(newfilename)
+					 if(newfilename == filename){
 						flag = false
 					}
 				 })
 				 if(!flag){
+					 alert("test")
 					window.open(e.target.value,'Download')
 				 }else{
 					 alert("This file has been deleted")
 					 return
 				 }
 			 })
+			 .catch(err => alert(err))
 		  }
 	  })
 
@@ -209,8 +211,6 @@ function downloadFile(filename,bucketname,foldername,extname,requiredUrl){
 	.catch(err => console.log(err))
 }
 function dynamicBtn(){
-
-
 let btn = document.getElementsByClassName("delete")
 let btn2 = Array.from(btn)
 btn2.map(btn1 => btn1.addEventListener("click",(e)=>{

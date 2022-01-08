@@ -146,8 +146,10 @@ router.get("/ajaxupload/:param", (req, res) => {
       .promise()
       .then((data) => {
         let result = [];
-        data.Contents.forEach(
-          (content) => content.Size == 0 && result.push(content.Key)
+        data.Contents.forEach((content) =>
+          content.Key.charAt(content.Key.length - 1) === "/"
+            ? result.push(content.Key)
+            : ""
         );
         res.status(200).json(result);
       });
@@ -168,8 +170,11 @@ router.get("/ajaxupload2/:param", (req, res) => {
       .then((data) => {
         let result = [];
         let result1 = [];
-        data.Contents.forEach(
-          (content) => content.Size == 0 && result.push(content.Key)
+
+        data.Contents.forEach((content) =>
+          content.Key.charAt(content.Key.length - 1) === "/"
+            ? result.push(content.Key)
+            : ""
         );
         data.Contents.forEach(
           (content) => content.Size != 0 && result1.push(content.Key)

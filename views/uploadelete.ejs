@@ -76,7 +76,6 @@
       if (xmlhttp.readyState == 4&& xmlhttp.status == 200) {   // XMLHttpRequest.DONE == 4
        if (xmlhttp.status == 200) {
          let result = JSON.parse(xmlhttp.responseText)
-        // console.log(result)
         fullresult = result.result1;
          let result1 = [];
          for(let i=0;i<result.result.length;i++)
@@ -110,13 +109,15 @@
     }
     function selectChange1(e){
       let lastresult=[];
-      console.log("test");
       while(lastresult.length){
         lastresult.pop()
       }
       fullresult.map( result => {
-        let foldername = result.split('/')[0].toLowerCase()
+        console.log(result)
+        let foldername = result.split('/').pop().toLowerCase()
+        console.log("foldername",result.split('/').pop())
         let selectedfoldername = e.value.split('/')[0].toLowerCase()
+        // console.log(foldername,selectedfoldername)
           if(foldername === selectedfoldername){
             if(result.split('/').length==2)
           lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${foldername}/${result.split('/')[1]}`,filename:result.split('/')[1]})
