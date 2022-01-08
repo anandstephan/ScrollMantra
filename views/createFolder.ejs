@@ -1,0 +1,110 @@
+
+<!-- APP MAIN ==========-->
+<main id="app-main" class="app-main">
+    <div class="wrap">
+      <section class="app-content">
+          <div class="row">
+              <div class="col-md-12">
+                  <div class="widget">
+                      <header class="widget-header">
+                          <h4 class="widget-title">Upload File</h4>
+                      </header><!-- .widget-header -->
+                      <hr class="widget-separator">
+            <%- include('partials/messages') %>
+          
+                      <div class="widget-body">
+                <form method="post"  action="/createnewfolder" >
+                  <div class="form-group">
+                     <label for="exampleInputEmail1">Chose Bucket</label> 
+                     <select class="form-control"  onchange="selectChange(this)" name="bucket" id="bucket"> 
+  
+                      <% buckets.forEach(user => { %>
+                        <option class="form-control" value=<%= user.Name %> selected="selected"><%= user.Name %></option>
+                    <% });%>
+                      </select> 
+                    </div> 
+                    <div class="form-group"> 
+                      <label for="exampleInputPassword1">Folder Name</label> 
+                      <select class="form-control" id="folder"  name="folder" > 
+                      </select>
+                  
+                     </div> 
+                    <div class="form-group">
+                      <label for="formFile" class="form-label mt-4">Create Folder</label>
+                      <input class="form-control" type="text" id="formFile" name="foldername">
+                    </div> 
+                    <input class="btn btn-primary btn-block btn-lg" type="submit"  > 
+                          </form>
+                      </div><!-- .widget-body -->
+                  </div><!-- .widget -->
+              </div><!-- END column -->
+          </div><!-- .row -->
+      </section><!-- #dash-content -->
+  </div><!-- .wrap -->
+    <!-- APP FOOTER -->
+    <div class="wrap p-t-0">
+      <footer class="app-footer">
+        <div class="clearfix">
+          <div class="copyright pull-left"> &copy;2021 | All Rights Reserved | Scroll Mantra</div>
+        </div>
+      </footer>
+    </div>
+    <!-- /#app-footer -->
+  </main>
+  <!--========== END app main -->
+  
+  <script>
+      
+    function selectChange(e){ 
+  
+      var xmlhttp = new XMLHttpRequest();
+      
+      // document.getElementById("folder").innerHTML = ''
+  xmlhttp.onreadystatechange = function() {
+    
+    if (xmlhttp.readyState == 4&& xmlhttp.status == 200) {   // XMLHttpRequest.DONE == 4
+    
+       if (xmlhttp.status == 200) {
+        //  console.log("test",xmlhttp.responseText);
+  
+         let result = JSON.parse(xmlhttp.responseText)
+    
+         let result1 = [];
+         for(let i=0;i<result.length;i++)
+         result1.push(result[i]);
+         console.log(result1)
+        let select = document.getElementById("folder")
+        if(select.options.length !=0) select.innerHTML = ''
+         result1.forEach(name =>{
+          let opt = document.createElement('option');
+          opt.value = name;
+          opt.innerHTML = name;
+          select.appendChild(opt);
+         })
+         
+         console.log(document.getElementById("folder")[0])
+          //  document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+       }
+       else if (xmlhttp.status == 400) {
+          alert('There was an error 400');
+       }
+       else {
+           alert('something else other than 200 was returned');
+       }
+    }
+  };
+  
+  xmlhttp.open("GET", `ajaxupload/${e.value}`, true);
+  xmlhttp.send();
+  
+    }
+  
+  
+    document.addEventListener("DOMContentLoaded",(e)=>{
+     setTimeout(function(){
+      // console.log(document.getElementById("bucket")[])
+     },1000)
+    })
+  
+  </script>
+  

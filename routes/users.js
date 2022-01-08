@@ -15,7 +15,7 @@ const multer = require("multer");
 const fs = require("fs-extra");
 const fs1 = require("fs");
 const Track = require("../models/Track");
-// const s3 = require("s3-client");
+// const s3Client = require("s3-client");
 const open = require("open");
 const path = require("path");
 
@@ -277,6 +277,39 @@ router.get("/adminupload", checkAuthenicated, (req, res) => {
         layout: "loginlayout",
         userId: req.session.passport.user,
       });
+    }
+  });
+});
+
+router.get("/createfolder", checkAuthenicated, (req, res) => {
+  s3.listBuckets((err, data) => {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      res.render("createFolder", {
+        buckets: data.Buckets,
+        layout: "loginlayout",
+        userId: req.session.passport.user,
+      });
+    }
+  });
+});
+
+router.post("/createnewfolder", (req, res) => {
+  let params = {
+    Bucket: req.body.bucket,
+    Key: req.body.folder + req.body.foldername + "/",
+    ACL: "private",
+    Body: "body does not matter",
+  };
+
+  s3.upload(params, function (err, data) {
+    if (err) {
+      console.log("Error creating the folder: ", err);
+    } else {
+      console.log("Successfully created a folder on S3");
+      req.flash("success_msg", "Folder created successfully");
+      res.redirect("/createfolder");
     }
   });
 });
