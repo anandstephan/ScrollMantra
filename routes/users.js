@@ -301,9 +301,15 @@ router.get("/createfolder", checkAuthenicated, (req, res) => {
 });
 
 router.post("/createnewfolder", (req, res) => {
+  let createfoldername;
+  if (req.body.folder == "rootfolder") {
+    createfoldername = req.body.foldername;
+  } else {
+    createfoldername = req.body.folder + req.body.foldername;
+  }
   let params = {
     Bucket: req.body.bucket,
-    Key: req.body.folder + req.body.foldername + "/",
+    Key: createfoldername + "/",
     ACL: "private",
     Body: "body does not matter",
   };

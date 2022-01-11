@@ -24,10 +24,10 @@
                       </select> 
                     </div> 
                     <div class="form-group"> 
-                      <label for="exampleInputPassword1">Folder Name</label> 
+                      <label for="exampleInputPassword1">Sub Folder Name</label> 
                       <select class="form-control" id="folder"  name="folder" > 
+                        <option value="/">/</option>
                       </select>
-                  
                      </div> 
                     <div class="form-group">
                       <label for="formFile" class="form-label mt-4">Create Folder</label>
@@ -73,7 +73,16 @@
          for(let i=0;i<result.length;i++)
          result1.push(result[i]);
          console.log(result1)
-        let select = document.getElementById("folder")
+         let select = document.getElementById("folder")
+         if(result1.length==0){
+        let opt = document.createElement("option")
+        select.innerHTML = ''
+        opt.value = "rootfolder";
+        opt.innerHTML = "In this Folder no Folder created yet";
+        select.appendChild(opt)
+        return;          
+         }
+
         if(select.options.length !=0) select.innerHTML = ''
          result1.forEach(name =>{
           let opt = document.createElement('option');
@@ -81,8 +90,11 @@
           opt.innerHTML = name;
           select.appendChild(opt);
          })
+         let opt = document.createElement('option');
+          opt.value = "rootfolder";
+          opt.innerHTML = "/rootfolder";
+          select.appendChild(opt);
          
-         console.log(document.getElementById("folder")[0])
           //  document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
        }
        else if (xmlhttp.status == 400) {
