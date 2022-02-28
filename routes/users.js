@@ -774,14 +774,7 @@ router.get("/user/:id", async (req, res) => {
 router.get("/deleteuser/:id", async (req, res) => {
   try {
     // const infos = await Info.findOneAndRemove({ userid: req.params.id });
-    const users = await User.findOneAndUpdate(
-      { _id: req.params.id },
-      { status: true },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+      const infos = await User.findByIdAndDelete(req.params.id)
     res.redirect("/showalluser");
   } catch (error) {
     console.log(error);
