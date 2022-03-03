@@ -124,11 +124,11 @@
         let selectedfoldername = e.value.split('/')[0].toLowerCase()
         // console.log(foldername,selectedfoldername)
  
-          if(foldername === selectedfoldername){
-          if(result.split('/').length==2)
-          lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${foldername}/${result.split('/')[1]}`,filename:result.split('/')[1]})
+          if(foldername === selectedfoldername){         
+	  if(result.split('/').length==2)
+          lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${foldername}/${result.split('/')[1]}`,filename:result})
           else
-          lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${result}`,filename:result.split("/")[1]+"/"+result.split('/')[2]})
+          lastresult.push({url:`https://${bucketname}.s3.amazonaws.com/${result}`,filename:result})
         }
     })
     
