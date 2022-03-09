@@ -138,23 +138,59 @@ router.get("/ajaxupload/:param", (req, res) => {
   let bucketname = req.params.param;
   // console.log(bucketname);
 
+//   async function test2() {
+//     await s3
+//       .listObjectsV2({
+//         Bucket: bucketname,
+//       })
+//       .promise()
+//       .then((data) => {
+//         let result = [];
+//         data.Contents.forEach((content) =>
+//           content.Key.charAt(content.Key.length - 1) === "/"
+//             ? result.push(content.Key)
+//             : ""
+//         );
+//         res.status(200).json(result);
+//       });
+//   }
+//   test2();
   async function test2() {
-    await s3
-      .listObjectsV2({
-        Bucket: bucketname,
-      })
-      .promise()
-      .then((data) => {
-        let result = [];
-        data.Contents.forEach((content) =>
-          content.Key.charAt(content.Key.length - 1) === "/"
-            ? result.push(content.Key)
-            : ""
-        );
-        res.status(200).json(result);
-      });
+    let list = [];
+    let shouldContinue = true;
+    let nextContinuationToken = null;
+    while (shouldContinue) {
+      let res = await s3
+        .listObjectsV2({
+          Bucket:bucketname,
+          ContinuationToken: nextContinuationToken || undefined,
+        })
+        .promise()
+        .then((data)=>{
+          list = [...list, ...data.Contents];
+  
+          if (!data.IsTruncated) {
+            shouldContinue = false;
+            nextContinuationToken = null;
+          } else {
+            nextContinuationToken = data.NextContinuationToken;
+          }
+        })
+      
+    }
+    return list;
   }
-  test2();
+    test2()
+        .then(data => {
+          let result = [];
+              // data.Contents.forEach(content => console.log(content))
+              data.forEach((content) =>
+                content.Key.charAt(content.Key.length - 1) === "/"
+                  ? result.push(content.Key)
+                  : ""
+              );
+              res.status(200).json(result);
+        })
 });
 
 router.get("/ajaxupload2/:param", (req, res) => {
