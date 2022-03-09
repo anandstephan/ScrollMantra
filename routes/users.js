@@ -161,28 +161,68 @@ router.get("/ajaxupload2/:param", (req, res) => {
   let bucketname = req.params.param;
   // console.log(bucketname);
 
-  async function test2() {
-    await s3
-      .listObjects({
-        Bucket: bucketname,
-      })
-      .promise()
-      .then((data) => {
-        let result = [];
-        let result1 = [];
+//   async function test2() {
+//     await s3
+//       .listObjects({
+//         Bucket: bucketname,
+//       })
+//       .promise()
+//       .then((data) => {
+//         let result = [];
+//         let result1 = [];
 
-        data.Contents.forEach((content) =>
-          content.Key.charAt(content.Key.length - 1) === "/"
-            ? result.push(content.Key)
-            : ""
-        );
-        data.Contents.forEach(
-          (content) => content.Size != 0 && result1.push(content.Key)
-        );
-        res.status(200).json({ result, result1 });
-      });
+//         data.Contents.forEach((content) =>
+//           content.Key.charAt(content.Key.length - 1) === "/"
+//             ? result.push(content.Key)
+//             : ""
+//         );
+//         data.Contents.forEach(
+//           (content) => content.Size != 0 && result1.push(content.Key)
+//         );
+//         res.status(200).json({ result, result1 });
+//       });
+//   }
+//   test2();
+    async function test2() {
+    let list = [];
+    let shouldContinue = true;
+    let nextContinuationToken = null;
+    while (shouldContinue) {
+      let res = await s3
+        .listObjectsV2({
+          Bucket:bucketname,
+          ContinuationToken: nextContinuationToken || undefined,
+        })
+        .promise()
+        .then((data)=>{
+          list = [...list, ...data.Contents];
+  
+          if (!data.IsTruncated) {
+            shouldContinue = false;
+            nextContinuationToken = null;
+          } else {
+            nextContinuationToken = data.NextContinuationToken;
+          }
+        })
+      
+    }
+    return list;
   }
-  test2();
+    test2()
+        .then(data => {
+          let result = [];
+              let result1 = [];
+              // data.Contents.forEach(content => console.log(content))
+              data.forEach((content) =>
+                content.Key.charAt(content.Key.length - 1) === "/"
+                  ? result.push(content.Key)
+                  : ""
+              );
+              data.forEach(
+                (content) => content.Size != 0 && result1.push(content.Key)
+              );
+              res.status(200).json({ result, result1 });
+        })
 });
 
 router.get("/ajaxupload3/:param1/:param2", (req, res) => {
